@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Calendar_Chat/src/logs/error/.5c1f0a15ed7cc0b435b4efd44140dfad6cd7f49d-audit.json",
+    "files": [
+        {
+            "date": 1758010386844,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Calendar_Chat/src/logs/error/2025-09-16.log",
+            "hash": "e26061af94db5e565032ee74af5410288bb8e2b9f79f9409296c4ff96d8af7fa"
+        }
+    ],
+    "hashType": "sha256"
+}
