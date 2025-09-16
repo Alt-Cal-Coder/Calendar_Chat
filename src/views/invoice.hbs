@@ -1,0 +1,1986 @@
+<div class="container mt-5 invoice_page">
+
+    <div class="row">
+        <div class="col-2 upload_image d-flex" id="upload_image_container">
+            <input type="file" name="upload_image" id="upload_image" accept="image/*" hidden />
+            <label for="upload_image" id="invoiceLogoLabel">Upload Logo</label>
+            <img id="invoiceLogoPreview" class="invoice-logo-preview" style="display: none;" />
+        </div>
+        <div class="col-10">
+            <h1 class="text-center mb-2 invoice_header">INVOICE YOUR EVENT ATTENDEES</h1>
+            <h2 class="text-center mb-2 invoice_header_subtitle">{{eventName}}</h2>
+            <div class="row justify-content-center mb-3 gap-1">
+
+                <div id="dateSlots">
+                    <section id="dateMonthSelector"></section>
+                    <section id="dateTimeSlots"
+                        class="d-flex flex-column align-items-center justify-content-center gap-2">
+                    </section>
+                </div>
+
+                <div id="dateRangeSlots">
+                    <section id="dateRangeMonthSelector"></section>
+                    <section id="dateRangeTimeSlots"
+                        class="d-flex flex-column align-items-center justify-content-center gap-2">
+                    </section>
+                </div>
+
+                <div id="daySlots">
+                    <section id="daySlotsMonthSelector"></section>
+                    <section id="daySlotsTimeSlots"
+                        class="d-flex flex-column align-items-center justify-content-center gap-2">
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {{!-- <p class="text-start mb-4 invoice_activate">ACTIVATE ON: 00/00/00</p> --}}
+
+    <div class="mt-4"></div>
+    <div class="mb-4 invoice_instruction">
+        <h5 class="invoice_card_header">INVOICE INSTRUCTIONS</h5>
+        <div class="btn-group w-100 invoice_instruction_group group_card" role="group">
+            {{#each invoiceInstructions}}
+            <input type="radio" name="invoiceInstruction" id="{{this.id}}" value="{{this.value}}" autocomplete="off"
+                hidden>
+            <label class="invoice_card_btn invoice_instruction_btn" for="{{this.id}}">{{this.name}}</label>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="mb-4 invoice_instruction_dynamic_form">
+        <section id="classesToBatchContainer" class="dynamic_form">
+            {{> classesToBatch title="Classes to Batch" items=classes location=address id="classesToBatchSelector"}}
+        </section>
+    </div>
+
+    <div class="mb-4 choose_fee">
+        <h5 class="invoice_card_header">CHOOSE FEE TYPE {{feeTypeHeader}}</h5>
+        <div class="btn-group w-100 choose_fee_group group_card" role="group">
+            {{#each feeTypes}}
+            <input type="radio" name="feeType" id="{{this.id}}" value="{{this.value}}" autocomplete="off" hidden>
+            <label class="invoice_card_btn choose_fee_btn" for="{{this.id}}">{{this.name}}</label>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="mb-4 choose_fee_dynamic_form">
+        <section id="reviewByFamilySelector" class="dynamic_form">
+            {{> reviewByFamilySelector title="Review family classes" items=familyClasses id="reviewFamilySelector"}}
+        </section>
+        <section id="reviewByFamilySelectorWithAnotherClass" class="dynamic_form">
+            {{> reviewByFamilySelector title="Review family classes" items=familyClasses
+            id="reviewFamilyAnotherClassSelector"}}
+        </section>
+    </div>
+
+    <div class="mb-4">
+        <h5 class="invoice_card_header">CHOOSE FEE AMOUNT</h5>
+        <div class="btn-group w-100 choose_fee_amount_group group_card" role="group">
+            {{#each feeAmounts}}
+            {{#if this.isCustom}}
+            <section class="d-flex align-items-center custom_fee_amount_input_group">
+                <span class="invoice_card_btn_checked">($US)</span>
+                <input type="number" class="custom_btn_input choose_fee_amount_btn_input" name="feeAmount"
+                    id="{{this.id}}" autocomplete="off" placeholder="custom">
+            </section>
+            {{else}}
+            <input type="radio" name="feeAmount" id="{{this.id}}" value="{{this.value}}" autocomplete="off" hidden>
+            <label class="invoice_card_btn choose_fee_amount_btn" for="{{this.id}}">{{this.name}}</label>
+            {{/if}}
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h5 class="invoice_card_header">WHEN SHOULD BILL BE SENT</h5>
+        <div id="bill_send_group" role="group" class="d-flex gap-2 flex-wrap">
+            {{!-- <div class="btn-group bill_send_group group_card" id="common_bill_group"></div>
+            <div class="btn-group bill_send_group group_card d-none" id="date_bill_group"></div>
+            <div class="btn-group bill_send_group group_card d-none" id="day_bill_group"></div>
+            <div class="btn-group bill_send_group group_card d-none" id="day_range_bill_group"></div> --}}
+        </div>
+    </div>
+
+
+    <div class="mb-4">
+        {{!-- ($ 1.500 MONTH, $75 CLASS $50 HOUR) --}}
+        <h5 class="invoice_card_header">PAYMENT REQUEST LIST <span id="invoicing-label"></span></h5>
+        <div class="btn-group w-100 members_group group_card" role="group">
+            {{#each members}}
+            <div id="{{this.id}}" class="member_card">
+                <p>{{this.first_name}} {{this.last_name}}</p>
+                <button class="close_btn">X</button>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-end align-items-center">
+        <button class="btn bg-white d-flex align-items-center ms-auto gap-2 rounded-pill" id="generateInvoice">Generate Invoice</button>
+    </div>
+
+    {{!-- loader --}}
+    {{> loader}}
+</div>
+
+<style>
+    .invoice-logo-preview {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: cover;
+    }
+</style>
+
+{{!-- selector script --}}
+<script>
+    let selectedItems = {};
+    function toggleSelector(_, id) {
+        const container = document.getElementById(id);
+        const content = container.querySelector('#selectorContent');
+        const arrow = content.querySelector('.arrow');
+        content.classList.toggle('open');
+        arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0)';
+    }
+
+    function selectItem(element, id) {
+        console.log('selectedId', id);
+        const container = document.getElementById(id);
+        const items = container.querySelectorAll('.selector-item');
+        items.forEach(item => item.classList.remove('selected'));
+        element.classList.add('selected');
+
+        const selectedId = element.getAttribute('data-id');
+        const selectedValue = element.getAttribute('data-value');
+        const selectedName = element.textContent;
+
+        selectedItems[id] = { id: selectedId, name: selectedName, value: selectedValue };
+    }
+</script>
+
+{{!-- page script --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // globalVariables
+        let currentlySelectedInvoice = null;
+        let currentlySelectedFeeType = null;
+        let currentlySelectedFeeAmount = null;
+        let currentlySelectedBillSendDate = null;
+
+        const uploadImageInputContainer = document.getElementById("upload_image_container");
+        const uploadImageInput = document.getElementById("upload_image");
+        const invoiceLogoLabel = document.getElementById("invoiceLogoLabel");
+        const invoiceLogoPreview = document.getElementById("invoiceLogoPreview");
+        let isLogoImageSelected = false;
+
+        uploadImageInputContainer.addEventListener("click", (e) => {
+            if(isLogoImageSelected) {
+                uploadImageInput.click();
+            }
+        })
+
+        uploadImageInput.addEventListener("change", function (event) {
+
+            const file = event.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                invoiceLogoPreview.src = e.target.result;
+                invoiceLogoPreview.style.display = "block";
+                invoiceLogoLabel.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+                isLogoImageSelected = true;
+            }
+        });
+        function generateInvoicingLabel(feeType, amount = 0) {
+            if(!feeType || !amount) return "";
+
+            const invoicingLabelEl = document.getElementById("invoicing-label");
+            
+            let label = "";
+            const totalClasses = Number("{{totalClasses}}");
+            const totalHours = Number("{{totalHours}}");
+
+            switch (feeType) {
+                case "one-time-fee":
+                    {{!-- label = `($1.500 MONTH, $75 CLASS $50 HOUR)`; --}}
+                    label = `($${(amount.toFixed(2))} ONE TIME, ${totalClasses} CLASSES - ${totalHours} HOURS)`;
+                    break;
+                case "total-class-count":
+                    label = `($${(amount.toFixed(2))} ALL CLASSES, ${totalClasses} CLASSES - ${totalHours} HOURS)`;
+                    break;
+                case "bill-per-class":
+                    label = `($${(amount.toFixed(2))} PER CLASS, ${totalClasses} CLASSES - ${totalHours} HOURS)`;
+                    break;
+                case "bill-per-month":
+                    label = `($${(amount.toFixed(2))} PER MONTH, ${totalClasses} CLASSES - ${totalHours} HOURS)`;
+                    break;
+                case "bill-all-in-advance":
+                    label = `($${(amount.toFixed(2))} ADVANCE, ${totalClasses} CLASSES - ${totalHours} HOURS)`;
+                    break;
+                default:
+                    break;
+            }
+
+            invoicingLabelEl.innerText = label;
+        }
+
+        function formatDateToLocalDateString(dateString) {
+            const options = { month: "numeric", day: "numeric", year: "2-digit" };
+            return new Date(dateString).toLocaleDateString("en-US", options);
+        }
+
+        // Function to format time
+        function formatTime(timeString) {
+            return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+            });
+        }
+
+        function formatDateWithFlatpickr(dateString, format, expectedFormat) {
+
+            if (!dateString || !format || !expectedFormat) {
+                return null;
+            }
+            // Parse the date string using Flatpickr's parseDate function
+            const dateObj = flatpickr.parseDate(dateString, format);
+
+            if (!dateObj) {
+                return null;
+            }
+
+            // Format the date object to yyyy-mm-dd
+            const formattedDate = flatpickr.formatDate(dateObj, expectedFormat);
+
+            return formattedDate;
+        }
+
+        // Function to get day of week
+        function getDayOfWeek(dateString) {
+            return new Date(dateString)
+                .toLocaleDateString("en-US", { weekday: "long" })
+                .toUpperCase();
+        }
+
+        function initializeDynamicForms() {
+            const dynamicForms = document.querySelectorAll('.dynamic_form');
+            dynamicForms.forEach(function (form) {
+                form.classList.add('d-none');
+            });
+
+            // custom_bill_send_date
+            flatpickr("#custom_bill_send_date", {
+                dateFormat: "m-d-Y",
+                allowInput: true,
+            });
+        }
+
+        function initializeInvoiceInstructionsRadioListener() {
+            let radioButtons = document.querySelectorAll('input[name="invoiceInstruction"]');
+
+            radioButtons.forEach(radioButton => {
+                radioButton.addEventListener('change', (e) => {
+                    let selectedId = e.target.id;
+                    currentlySelectedInvoice = selectedId;
+
+                    switch (selectedId) {
+                        case "batch-this-alone":
+                            document.getElementById('classesToBatchContainer').classList.add('d-none');
+                            document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            document.getElementById('reviewByFamilySelectorWithAnotherClass').classList.add('d-none');
+                            break;
+                        case "batch-with-another-class":
+                            document.getElementById('classesToBatchContainer').classList.remove('d-none');
+                            document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            document.getElementById('reviewByFamilySelectorWithAnotherClass').classList.add('d-none');
+
+                            break;
+                        case "batch-by-family":
+                            document.getElementById('classesToBatchContainer').classList.add('d-none');
+                            document.getElementById('reviewByFamilySelectorWithAnotherClass').classList.add('d-none');
+
+                            if (currentlySelectedFeeType === 'bill-per-month') {
+                                document.getElementById('reviewByFamilySelector').classList.remove('d-none');
+                            } else {
+                                document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            }
+
+                            break;
+                        case "batch-by-family-with-another-class":
+                            document.getElementById('classesToBatchContainer').classList.add('d-none');
+                            document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            if (currentlySelectedFeeType === 'bill-per-month') {
+                                document.getElementById('reviewByFamilySelectorWithAnotherClass').classList.remove('d-none');
+                            } else {
+                                document.getElementById('reviewByFamilySelectorWithAnotherClass').classList.add('d-none');
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+
+                });
+            });
+
+        }
+
+        function initializeFeeTypesRadioListener() {
+            let radioButtons = document.querySelectorAll('input[name="feeType"]');
+
+            radioButtons.forEach(radioButton => {
+                radioButton.addEventListener('change', (e) => {
+                    let selectedId = e.target.id;
+                    currentlySelectedFeeType = selectedId;
+
+                    switch (selectedId) {
+                        case "one-time-fee":
+                            document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            generateInvoicingLabel("one-time-fee", currentlySelectedFeeAmount);
+                            break;
+                        case "total-class-count":
+                            document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            generateInvoicingLabel("total-class-count", currentlySelectedFeeAmount);
+                            break;
+                        case "bill-per-class":
+                            document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            generateInvoicingLabel("bill-per-class", currentlySelectedFeeAmount);
+                            break;
+                        case "bill-per-month":
+                            generateInvoicingLabel("bill-per-month", currentlySelectedFeeAmount);
+                            if (currentlySelectedInvoice === 'batch-by-family') {
+                                document.getElementById('reviewByFamilySelector').classList.remove('d-none');
+                            } else {
+                                document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            }
+
+                            if (currentlySelectedInvoice === 'batch-by-family-with-another-class') {
+                                document.getElementById('reviewByFamilySelectorWithAnotherClass').classList.remove('d-none');
+                            } else {
+                                document.getElementById('reviewByFamilySelectorWithAnotherClass').classList.add('d-none');
+                            }
+                            break;
+                        case "bill-all-in-advance":
+                            document.getElementById('reviewByFamilySelector').classList.add('d-none');
+                            generateInvoicingLabel("bill-all-in-advance", currentlySelectedFeeAmount);
+                            break;
+                        default:
+                            break;
+                    }
+
+                });
+            });
+        }
+
+        const customFeeInputField = document.getElementById("fee-amount-custom");
+        customFeeInputField.addEventListener("input", (e) => {
+            const value = e.target.value;
+            generateInvoicingLabel(currentlySelectedFeeType, value);
+        })
+        // function initializeTimeSlots() {
+        //     function generateTimeSlotHTML(slot) {
+        //         if (slot.type == 1) {
+        //             return `
+        //                 <table style="background-color: black; color: white; border-collapse: collapse;">
+        //                     <tr>
+        //                         <td style="padding: 5px;">
+        //                             <span class="w-100 text-uppercase">${formatDateWithFlatpickr(slot.startDate, "Z", "D M j")}</span>
+        //                         </td>
+        //                         <td style="padding: 5px;">
+        //                            <span class="w-100 text-uppercase">${formatDateWithFlatpickr(slot.endDate, "Z", "D M j")}</span>
+        //                         </td>
+        //                         <td style="padding: 5px;">
+        //                            <span class="w-100 startTimeBadge text-uppercase">${formatDateWithFlatpickr(slot.startTime, "H:i:S", "h:i K")}</span>
+        //                            <span>-</span>
+        //                           <span class="w-100 endTimeBadge text-uppercase">${formatDateWithFlatpickr(slot.endTime, "H:i:S", "h:i K")}</span>
+        //                         </td>
+        //                     </tr>
+        //                 </table>
+        //         `;
+        //         } else {
+        //             return `
+        //                 <table style="background-color: black; color: white; border-collapse: collapse;">
+        //                     <tr>
+        //                         <td style="padding: 5px;">
+        //                             <span class="w-100 text-uppercase">${formatDateWithFlatpickr(slot.startDate, "Z", "D M j")}</span>
+        //                         </td>
+        //                         <td style="padding: 5px;">
+        //                            <span class="w-100 text-uppercase">${formatDateWithFlatpickr(slot.endDate, "Z", "D M j")}</span>
+        //                         </td>
+        //                         <td style="padding: 5px;">
+        //                            <span class="w-100 startTimeBadge text-uppercase">${formatDateWithFlatpickr(slot.startTime, "H:i:S", "h:i K")}</span>
+        //                            <span>-</span>
+        //                           <span class="w-100 endTimeBadge text-uppercase">${formatDateWithFlatpickr(slot.endTime, "H:i:S", "h:i K")}</span>
+        //                         </td>
+        //                     </tr>
+        //                 </table>
+        //         `;
+        //         }
+        //     }
+        //     const json = JSON.parse(`{{{json timeSlots}}}` ?? "{}")
+        //     console.log(json);
+        //     const timeSlotsContainer = document.getElementById('timeSlots');
+        //     timeSlotsContainer.innerHTML = json.map(generateTimeSlotHTML).join('');
+        // }
+
+        function initializeFeeAmountRadioListener() {
+            let radioButtons = document.querySelectorAll('input[name="feeAmount"]');
+
+            radioButtons.forEach(radioButton => {
+                radioButton.addEventListener('change', (e) => {
+                    let selectedId = e.target.id;
+                    currentlySelectedFeeAmount = Number(e.target.value);
+                    generateInvoicingLabel(currentlySelectedFeeType, currentlySelectedFeeAmount);
+                });
+            });
+        }
+
+        // function initializeBiiSendGroupRadioListener() {
+        //     let radioButtons = document.querySelectorAll('input[name="billSend"]');
+
+        //     radioButtons.forEach((radioButton) => {
+        //         radioButton.addEventListener('change', (e) => {
+        //             let selectedId = e.target.id;
+        //             currentlySelectedBillSendDate = selectedId;
+
+        //             switch (selectedId) {
+        //                 case "bill-send-custom":
+        //                     document.getElementById('billSendGroupCustomSelector').classList.remove('d-none');
+        //                     document.getElementById('billSendGroupSpecificDateSelector').classList.add('d-none');
+        //                     break;
+        //                 case "bill-send-specific":
+        //                     document.getElementById('billSendGroupSpecificDateSelector').classList.remove('d-none');
+        //                     document.getElementById('billSendGroupCustomSelector').classList.add('d-none');
+        //                     break;
+        //                 default:
+        //                     break;
+        //             }
+        //         });
+        //     })
+        // }
+
+        function initializeMembersRemoveListener() {
+            let memberGroups = document.querySelector('.members_group');
+            let removeMembersButton = memberGroups.querySelectorAll(".close_btn");
+
+            removeMembersButton.forEach((button) => {
+                button.addEventListener("click", (e) => {
+                    let memberGroup = e.target.closest(".member_card");
+                    memberGroup.remove();
+                })
+            });
+        }
+
+        function initializeGenerateInvoiceButtonListener() {
+
+            async function generateInvoice() {
+                // get all the selected data from the form
+                let selectedInvoiceRule = document.querySelector(`#${currentlySelectedInvoice}`);
+                let selectedFeeType = document.querySelector(`#${currentlySelectedFeeType}`);
+                let selectedFeeAmount = document.querySelector(`#${currentlySelectedFeeAmount}`);
+                let selectedBillSendDate = document.querySelector(`#${currentlySelectedBillSendDate}`);
+
+                let members = document.querySelectorAll('.member_card');
+                let students = [];
+                members.forEach((member) => {
+                    students.push({
+                        name: member.querySelector('p').innerText,
+                    })
+                })
+
+                let classesJSON = JSON.parse(`{{{json classes}}}`, "{}");
+                let classes = classesJSON.map((e) => {
+                    return {
+                        name: e.name,
+                        price: selectedFeeAmount.value,
+                        num_classes: 1,
+                        start_date: formatDateWithFlatpickr(e.startDate, "Z", "d/m/Y"),
+                        end_date: formatDateWithFlatpickr(e.endDate, "Z", "d/m/Y"),
+                    }
+                })
+
+                let payment_due_date = "";
+
+
+                switch (selectedBillSendDate.value) {
+                    case "today":
+                        payment_due_date = formatDateWithFlatpickr(new Date(), "Z", "d/m/Y");
+                        break;
+                    case "tomorrow":
+                        payment_due_date = formatDateWithFlatpickr(new Date(new Date().setDate(new Date().getDate() + 1)), "Z", "d/m/Y");
+                        break;
+                    case "1st":
+                        let firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
+                        payment_due_date = formatDateWithFlatpickr(firstOfMonth, "Z", "d/m/Y");
+                        break;
+                    case "15th":
+                        let fifteenthOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 15);
+                        if (fifteenthOfMonth < new Date()) {
+                            fifteenthOfMonth.setMonth(fifteenthOfMonth.getMonth() + 1);
+                        }
+                        payment_due_date = formatDateWithFlatpickr(fifteenthOfMonth, "Z", "d/m/Y");
+                        break;
+                    case "specific":
+                        let selectedDate = new Date(new Date().getFullYear(), new Date().getMonth(), parseInt(selectedItems["billSendSpecificDate"].value));
+                        if (selectedDate < new Date()) {
+                            selectedDate.setMonth(selectedDate.getMonth() + 1);
+                        }
+                        payment_due_date = formatDateWithFlatpickr(selectedDate, "Z", "d/m/Y");
+                        break;
+                    case "custom":
+                        let value = document.getElementById('custom_bill_send_date').value;
+                        payment_due_date = formatDateWithFlatpickr(value, 'm-d-Y', "d/m/Y");
+                        break;
+                }
+
+                let formdata = {
+                    eventId: `{{{eventId}}}`,
+                    creator: {
+                        "name": `{{{creatorName}}}`,
+                    },
+                    payor: {
+                        "name": `Amanthi Sandeepa`, // static for now
+                    },
+                    students: students,
+                    classes: classes,
+                    payment_options: {
+                        "card_on_file": true,
+                        "cash": false,
+                        "e_check": true,
+                        "credit_card": true,
+                        "qr_code": ""
+                    },
+                    "batch_preferences": {
+                        "batch_method": selectedFeeType.value,
+                        "payment_due_date": payment_due_date
+                    }
+                }
+
+                let formData = new FormData();
+
+                let upload_image = document.getElementById('upload_image');
+                if (upload_image.files.length > 0) {
+                    formData.append('upload_image', upload_image.files[0]);
+                }
+
+                formDataObj.append('eventId', formdata.eventId);
+                formDataObj.append('creator[name]', formdata.creator.name);
+                formDataObj.append('payor[name]', formdata.payor.name);
+                formDataObj.append('students', JSON.stringify(formdata.students));
+                formDataObj.append('classes', JSON.stringify(formdata.classes));
+
+                // Append payment options (handle nested structure)
+                formDataObj.append('payment_options[card_on_file]', formdata.payment_options.card_on_file);
+                formDataObj.append('payment_options[cash]', formdata.payment_options.cash);
+                formDataObj.append('payment_options[e_check]', formdata.payment_options.e_check);
+                formDataObj.append('payment_options[credit_card]', formdata.payment_options.credit_card);
+                formDataObj.append('payment_options[qr_code]', formdata.payment_options.qr_code);
+
+                // Append batch preferences (nested structure)
+                formDataObj.append('batch_preferences[batch_method]', formdata.batch_preferences.batch_method);
+                formDataObj.append('batch_preferences[payment_due_date]', formdata.batch_preferences.payment_due_date);
+
+
+                let result = await fetch(`{{{pythonBaseUrl}}}/`);
+
+                if (result.ok) {
+                    if (result.status === 200) {
+                        let data = await result.json();
+                        console.log(data);
+                        window.location.href = `/invoice/preview/${formdata.eventId}`;
+                    }
+                } else {
+
+                }
+            }
+
+            document.getElementById('generateInvoice').addEventListener('click', (e) => {
+                generateInvoice();
+            });
+        }
+
+        initializeFeeTypesRadioListener();
+        initializeInvoiceInstructionsRadioListener();
+        initializeFeeAmountRadioListener();
+        // initializeBiiSendGroupRadioListener();
+        initializeDynamicForms();
+        // initializeTimeSlots();
+        // initializeGenerateInvoiceButtonListener();
+        initializeMembersRemoveListener();
+    });
+</script>
+
+{{!-- Adding button to the page --}}
+<script>
+    const monthGroups = {};
+    let billSendGroup = document.getElementById("bill_send_group");
+
+    function formatDateWithFlatpickr(dateString, format, expectedFormat) {
+
+        if (!dateString || !format || !expectedFormat) {
+            return null;
+        }
+        // Parse the date string using Flatpickr's parseDate function
+        const dateObj = flatpickr.parseDate(dateString, format);
+
+        if (!dateObj) {
+            return null;
+        }
+
+        // Format the date object to yyyy-mm-dd
+        const formattedDate = flatpickr.formatDate(dateObj, expectedFormat);
+
+        return formattedDate;
+    }
+
+    function styleTimeSlots() {
+        // Select timeslots from the HTML using data attributes
+        const timeslotElements = document.querySelectorAll(".timeslot-item");
+
+        timeslotElements.forEach(timeslot => {
+            const day = timeslot.getAttribute("data-day");
+            const date = timeslot.getAttribute("data-date");
+            const startTime = timeslot.getAttribute("data-start-time");
+            const endTime = timeslot.getAttribute("data-end-time");
+            const dateRange = timeslot.getAttribute("data-date-range");
+
+            // Style based on the classification of the timeslot
+            if (day && date) {
+                // Case: Both day and date are present (e.g., M W F with a date range)
+                timeslot.innerHTML = `${day} ${startTime} ${dateRange}`;
+            } else if (day) {
+                // Case: Only the day name is present (e.g., M W F)
+                timeslot.innerHTML = `${day} ${startTime} - ${endTime}`;
+            } else if (dateRange) {
+                // Case: Date range is present (e.g., 00/00/00 - 00/00/00)
+                timeslot.innerHTML = `${dateRange} ${startTime} - ${endTime}`;
+            } else if (date) {
+                // Case: Individual dates in the same month (staggered display)
+                const dayOfMonth = new Date(date).getDate();
+                timeslot.innerHTML = `${startTime} - ${endTime} ${getMonthName(date)} ${dayOfMonth}`;
+            }
+        });
+
+    }
+
+    function getMonthName(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('default', { month: 'long' });
+    }
+
+    function groupSlotByTime(slots) {
+        const groupedSlots = slots.reduce((acc, slot) => {
+            const key = `${slot.start_time}-${slot.end_time}`;
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push(slot);
+            return acc;
+        }, {});
+
+        return groupedSlots;
+    }
+
+    // day selector ---- > start 
+    function setDateStyleIntoTimeSlots(slots) {
+        let timeSlots = document.getElementById("dateTimeSlots");
+        timeSlots.innerHTML = "";
+
+        // group by date using start_time and end_time
+        let groupedSlots = groupSlotByTime(slots);
+
+        let onlyOneGroup = Object.keys(groupedSlots).length === 1;
+
+        Object.keys(groupedSlots).map(key => {
+            const timeslot = document.createElement("div");
+            timeslot.className = "timeslot-item";
+
+            const { start_time, end_time } = groupedSlots[key][0];
+
+            let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+            let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+            let monthHTML = ``;
+            if (onlyOneGroup) {
+                monthHTML = `<td style="padding:0px 5px;"><span class="w-100 month-badge text-uppercase">${getMonthName(groupedSlots[key][0].date)}</span></td>`
+            }
+
+            let dateHTML = ``;
+            groupedSlots[key].forEach(slot => {
+                const date = slot.date;
+                const dayOfMonth = new Date(date).getDate();
+                dateHTML += `<td style="padding:0px 5px;"><span class="w-100 day-badge text-uppercase">${dayOfMonth}</span></td>`
+            })
+
+            let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${dateHTML}
+                            ${monthHTML}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                        </tr>
+                    </table>
+                `;
+
+            timeslot.innerHTML = tableHTML;
+
+            timeSlots.appendChild(timeslot);
+        })
+    }
+
+    function groupDateMonth() {
+        let { date_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+        // Group timeSlots by month
+
+        date_time_slots.forEach(timeslot => {
+            const date = timeslot.date;
+            const monthName = getMonthName(date);
+
+            if (!monthGroups[monthName]) {
+                monthGroups[monthName] = [];
+            }
+            monthGroups[monthName].push(timeslot);
+        });
+
+        let monthSelector = document.getElementById("dateMonthSelector");
+        let isMonthSelected = false;
+        // Apply staggered display for each month group
+
+        if (Object.keys(monthGroups).length >= 5) {
+            // drop down menu
+            monthSelector.innerHTML = "";
+
+            const selector = document.createElement("select");
+            selector.classList.add("month-select-dropdown");
+
+            for (const monthName in monthGroups) {
+                const timeslots = monthGroups[monthName];
+
+                let option = document.createElement("option");
+                option.setAttribute("value", monthName);
+                option.textContent = monthName;
+                selector.appendChild(option);
+
+                if (!isMonthSelected) {
+                    option.selected = true;
+                    setDateStyleIntoTimeSlots(timeslots);
+                    isMonthSelected = true;
+                }
+            }
+
+            selector.onchange = () => {
+                const selectedMonth = selector.value;
+                const selectedTimeslots = monthGroups[selectedMonth];
+                setDateStyleIntoTimeSlots(selectedTimeslots);
+            }
+
+            monthSelector.appendChild(selector);
+        }
+        else if (Object.keys(monthGroups).length === 1) {
+            // only one month
+
+            const timeslots = monthGroups[Object.keys(monthGroups)[0]];
+
+            let groupedSlots = groupSlotByTime(timeslots);
+            if (Object.keys(groupedSlots).length >= 2) {
+                // staggered display
+                const monthName = Object.keys(monthGroups)[0];
+                const monthHeader = document.createElement("div");
+                monthHeader.classList.add("month-header-single");
+
+                const inputRadio = document.createElement("input");
+                inputRadio.setAttribute("type", "radio");
+                inputRadio.setAttribute("name", "month_selector");
+                inputRadio.setAttribute('id', `month_selector_${monthName}`);
+                inputRadio.setAttribute("value", monthName);
+                inputRadio.setAttribute('hidden', 'true');
+                inputRadio.disabled = true;
+                monthHeader.appendChild(inputRadio);
+
+                const label = document.createElement("label");
+                label.setAttribute("for", `month_selector_${monthName}`);
+                label.textContent = monthName;
+                monthHeader.appendChild(label);
+
+                monthHeader.appendChild(inputRadio);
+                monthHeader.appendChild(label);
+                monthSelector.appendChild(monthHeader);
+            }
+
+            setDateStyleIntoTimeSlots(monthGroups[Object.keys(monthGroups)[0]]);
+        }
+        else {
+            for (const monthName in monthGroups) {
+                const timeslots = monthGroups[monthName];
+
+                // Create a header for the month
+                const monthHeader = document.createElement("div");
+                monthHeader.classList.add("month-header");
+
+                const inputRadio = document.createElement("input");
+                inputRadio.setAttribute("type", "radio");
+                inputRadio.setAttribute("name", "month_selector");
+                inputRadio.setAttribute('id', `month_selector_${monthName}`);
+                inputRadio.setAttribute("value", monthName);
+                inputRadio.setAttribute('hidden', 'true');
+                monthHeader.appendChild(inputRadio);
+
+                if (!isMonthSelected) {
+                    monthHeader.classList.add('active');
+                    inputRadio.checked = true;
+                    setDateStyleIntoTimeSlots(timeslots);
+                    isMonthSelected = true;
+                }
+
+                const label = document.createElement("label");
+                label.setAttribute("for", `month_selector_${monthName}`);
+                label.textContent = monthName;
+                monthHeader.appendChild(label);
+
+                monthHeader.appendChild(inputRadio);
+                monthHeader.appendChild(label);
+                monthSelector.appendChild(monthHeader);
+            }
+        }
+    }
+
+    function monthSelectorListeners() {
+        document.querySelectorAll('input[name="month_selector"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.month-header').forEach(function (header) {
+                    header.classList.remove('active'); // Remove active class from all headers
+                });
+                if (radio.checked) {
+                    radio.parentElement.classList.add('active'); // Add active class to the checked header
+                    setDateStyleIntoTimeSlots(monthGroups[radio.value]);
+                }
+            });
+        });
+    }
+    // day selector ---- > end
+
+
+    function groupDateRangeSlot() {
+        let { date_range_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+
+        console.log(date_range_time_slots);
+
+        const dateRangeTimeSlots = document.getElementById("dateRangeTimeSlots");
+        date_range_time_slots.forEach((slot) => {
+            const timeslot = document.createElement("div");
+            timeslot.className = "timeslot-item";
+
+            const { start_time, end_time, date_range } = slot;
+            const date = date_range.split(" - ");
+
+            let startDate = `<td style="padding:0px 5px;"><span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(date[0], "Y-m-d", "m-d-Y")}</span></td>`;
+
+            let endDate = `<td style="padding:0px 5px;"><span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(date[1], "Y-m-d", "m-d-Y")}</span></td>`;
+
+            let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+            let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+            let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${startDate}
+                            ${endDate}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                        </tr>
+                    </table>
+                `;
+
+            timeslot.innerHTML = tableHTML;
+            dateRangeTimeSlots.appendChild(timeslot);
+        })
+    }
+
+    function groupDateRangeSlot() {
+        let { date_range_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+
+        const dateRangeTimeSlots = document.getElementById("dateRangeTimeSlots");
+        date_range_time_slots.forEach((slot) => {
+            const timeslot = document.createElement("div");
+            timeslot.className = "timeslot-item";
+
+            const { start_time, end_time, date_range } = slot;
+            const date = date_range.split(" - ");
+
+            let startDate = `<td style="padding:0px 5px;"><span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(date[0], "Y-m-d", "m-d-Y")}</span></td>`;
+
+            let endDate = `<td style="padding:0px 5px;"><span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(date[1], "Y-m-d", "m-d-Y")}</span></td>`;
+
+            let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+            let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+            let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${startDate}
+                            ${endDate}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                        </tr>
+                    </table>
+                `;
+
+            timeslot.innerHTML = tableHTML;
+            dateRangeTimeSlots.appendChild(timeslot);
+        })
+    }
+
+    function groupWeekDaysSlot() {
+        let { day_date_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+
+        const daySlotsTimeSlots = document.getElementById("daySlotsTimeSlots");
+
+        day_date_time_slots.forEach((slot) => {
+            const timeslot = document.createElement("div");
+            timeslot.className = "timeslot-item";
+
+            const { start_time, end_time, start_date, day, end_date } = slot;
+
+            let dayHTML = ``;
+            let days = day.split(",");
+
+            days.forEach((day) => {
+                dayHTML += `<td style="padding:0px 5px;"><span class="w-100 day-badge text-uppercase">${day}</span></td>`
+            });
+
+            if (start_date && end_date) {
+
+                let startDateHTML = `<td style="padding:0px 5px;"><span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(start_date, "Y-m-d", "m-d-Y")}</span></td>`;
+
+                let endDateHTML = `<td style="padding:0px 5px;"><span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(end_date, "Y-m-d", "m-d-Y")}</span></td>`;
+
+                let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+                let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+                let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${dayHTML}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                            ${startDateHTML}
+                            ${endDateHTML}
+                        </tr>
+                    </table>
+                    `;
+                timeslot.innerHTML = tableHTML;
+            } else {
+                let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+                let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+                let startDateHTML = ``;
+
+                if (start_date) {
+                    startDateHTML = `<td style="padding:0px 5px;"><span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(start_date, "Y-m-d", "m-d-Y")}</span></td>`;
+                }
+
+                let endDateHTML = ``;
+                if (end_date) {
+                    endDateHTML = `<td style="padding:0px 5px;"><span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(end_date, "Y-m-d", "m-d-Y")}</span></td>`;
+                }
+
+                let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${dayHTML}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                            ${startDateHTML}
+                            ${endDateHTML}
+                        </tr>
+                    </table>
+                `;
+                timeslot.innerHTML = tableHTML;
+            }
+
+            dateRangeTimeSlots.appendChild(timeslot);
+        })
+    }
+
+
+    function createInputGroupOption(group, name, parentDIV, customClass) {
+        if (group.isCustomDate) {
+            let input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("name", name);
+            input.setAttribute("id", group.id);
+            input.setAttribute("data-identifier", group.identifier)
+            input.setAttribute('placeholder', 'specific date');
+            input.setAttribute('date-input', 'true');
+            input.setAttribute('class', 'custom_btn_input');
+            if (customClass) {
+                input.classList.add(customClass);
+            }
+            parentDIV.appendChild(input);
+
+            flatpickr(`#${group.id}`, {
+                dateFormat: "m-d-Y",
+                allowInput: true,
+                minDate: 'today',
+            });
+        } else if (group.isCustomDropDown) {
+            let select = document.createElement("select");
+            select.setAttribute("name", name);
+            select.setAttribute("id", group.id);
+            select.setAttribute('class', 'custom_btn_input select-dropdown');
+            select.setAttribute('placeholder', group.name)
+            select.setAttribute("data-identifier", group.identifier)
+
+            if (customClass) {
+                select.classList.add(customClass);
+            }
+
+            group.options.forEach(option => {
+                let optionElement = document.createElement("option");
+                optionElement.setAttribute("value", option.value);
+                if (option.isDisabled) {
+                    optionElement.setAttribute("disabled", "true");
+                }
+                if (option.isSelected) {
+                    optionElement.setAttribute("selected", "true");
+                }
+                optionElement.textContent = option.name;
+                select.appendChild(optionElement);
+            });
+
+            parentDIV.appendChild(select);
+        } else {
+            let input = document.createElement("input");
+            input.setAttribute("type", "radio");
+            input.setAttribute("name", name);
+            input.setAttribute("id", group.id);
+            input.setAttribute("value", group.value);
+            input.setAttribute("data-identifier", group.identifier)
+            input.setAttribute('hidden', 'true');
+            parentDIV.appendChild(input);
+
+            let label = document.createElement("label");
+            label.setAttribute("for", group.id);
+            label.textContent = group.name;
+            label.className = "invoice_card_btn bill_send_group_btn";
+            parentDIV.appendChild(label);
+        }
+    }
+
+    function countWeekdayOccurrences(startDate, endDate, weekdays) {
+        const weekdaysArray = weekdays.split(',').map(day => day.trim());
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        // Map weekday names to numeric values for Date object
+        const weekdayMap = {
+            'SU': 0,
+            'MO': 1,
+            'TU': 2,
+            'WE': 3,
+            'TH': 4,
+            'FR': 5,
+            'SA': 6
+        };
+
+        let count = 0;
+        for (const weekday of weekdaysArray) {
+            const targetDay = weekdayMap[weekday];
+            let current = new Date(start);
+
+            // Iterate through the date range
+            while (current <= end) {
+                if (current.getDay() === targetDay) {
+                    count++;
+                }
+                // Move to the next day
+                current.setDate(current.getDate() + 1);
+            }
+        }
+
+        return count;
+    }
+
+
+    function generateDayOptionsArray(endDate) {
+        // Get current date
+        const currentDate = new Date();
+        const end = new Date(endDate);
+
+        // Calculate the difference in days
+        const timeDiff = end - currentDate;
+        let dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert to days
+
+        const options = [];
+
+        if (dayDiff <= 0) {
+            dayDiff = 1;
+        }
+
+        // Generate array of options from 1 day to the number of days until the end date
+        for (let i = 1; i <= dayDiff; i++) {
+            options.push({
+                name: i === 1 ? `${i} day` : `${i} days`,
+                value: i
+            });
+        }
+
+        return options;
+    }
+
+
+    function getMonthNameFromIndex(month) {
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        return monthNames[month - 1]; // month is 0-indexed
+    }
+
+    function generateDayOfTheMonthOptions(startDate, endDate) {
+        // Parse startDate and endDate into Date objects
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        // Extract year and month from the start date
+        const startYear = start.getFullYear();
+        const startMonth = start.getMonth() + 1; // Month is 0-indexed, so add 1
+
+        // Extract year and month from the end date
+        const endYear = end.getFullYear();
+        const endMonth = end.getMonth() + 1;
+
+
+
+        const options = [];
+
+        // Handle if start and end dates are in the same month
+        if (startYear === endYear && startMonth === endMonth) {
+            const daysInMonth = new Date(startYear, startMonth, 0).getDate();
+
+
+            // Loop through the days from start day to end day
+            for (let day = start.getDate(); day <= end.getDate(); day++) {
+                options.push({
+                    name: `${day} ${getMonthNameFromIndex(startMonth)}`,
+                    value: `${day} ${startMonth} ${startYear}`
+                });
+            }
+        } else {
+            // Handle case where start and end dates are in different months
+            // First, add remaining days in the start month
+            const daysInStartMonth = new Date(startYear, startMonth, 0).getDate();
+            for (let day = start.getDate(); day <= daysInStartMonth; day++) {
+                options.push({
+                    name: `${day} ${getMonthNameFromIndex(startMonth)}`,
+                    value: `${day} ${startMonth} ${startYear}`
+                });
+            }
+
+            // Loop through all full months between start and end dates
+            for (let month = startMonth + 1; month < endMonth; month++) {
+                const daysInMonth = new Date(startYear, month, 0).getDate();
+                for (let day = 1; day <= daysInMonth; day++) {
+                    options.push({
+                        name: `${day} ${getMonthNameFromIndex(month)}`,
+                        value: `${day} ${month} ${startYear}`
+                    });
+                }
+            }
+
+            // Finally, add the days in the end month
+            for (let day = 1; day <= end.getDate(); day++) {
+                options.push({
+                    name: `${day} ${getMonthNameFromIndex(endMonth)}`,
+                    value: `${day} ${endMonth} ${endYear}`
+                });
+            }
+        }
+
+        return options;
+    }
+
+    function generateCurrentMonthOptions() {
+        // Get the current date and extract the current month and year
+        const today = new Date();
+        const month = today.toLocaleString('default', { month: 'long' }); // Get full month name
+        const year = today.getFullYear();
+
+        // Get the number of days in the current month
+        const daysInMonth = new Date(year, today.getMonth() + 1, 0).getDate();
+
+        // Function to add ordinal suffix to the day number
+        function getOrdinalSuffix(day) {
+            if (day > 3 && day < 21) return 'th'; // Special case for numbers between 4 and 20
+            switch (day % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        }
+
+        // Generate the list of options
+        const options = [];
+        for (let day = 1; day <= daysInMonth; day++) {
+            const suffix = getOrdinalSuffix(day);
+            options.push({
+                name: `${day}${suffix} ${month}`,
+                value: `${day} ${month} ${year}`
+            });
+        }
+
+        return options;
+    }
+
+    function generateDayOfTheMonthOptions() {
+        // Function to add ordinal suffix to the day number
+        function getOrdinalSuffix(day) {
+            if (day > 3 && day < 21) return 'th'; // Special case for numbers between 4 and 20
+            switch (day % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        }
+
+        // Generate the list of options
+        const options = [];
+        for (let day = 1; day <= 30; day++) {
+            const suffix = getOrdinalSuffix(day);
+            options.push({
+                name: `${day}${suffix} Month`,
+                value: `${day}`
+            });
+        }
+
+        return options;
+    }
+
+
+    function addBillOptionsAccordingToSlots() {
+        let { day_date_time_slots, date_range_time_slots, date_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+
+        //let date_bill_group = document.getElementById("date_bill_group");
+        //let day_bill_group = document.getElementById("day_bill_group");
+        //let day_range_bill_group = document.getElementById("day_range_bill_group");
+        //let common_bill_group = document.getElementById("common_bill_group");
+
+
+        // Create a Set to track added option values
+        const addedOptions = new Set();
+
+        function addOptionIfUnique(option, inputName, parentElement, customClass) {
+            // Check if the option's value has already been added
+            if (!addedOptions.has(option.identifier)) {
+                parentElement.classList.remove('d-none');
+                createInputGroupOption(option, inputName, parentElement, customClass);
+                addedOptions.add(option.identifier);  // Mark this option as added
+            }
+        }
+
+        let commonOptions = [
+            {
+                'id': 'common-group-today',
+                'name': 'Today',
+                'value': new Date().toISOString().split('T')[0],
+                'identifier': 'today'
+            },
+            {
+                'id': 'common-group-tomorrow',
+                'name': 'Tomorrow',
+                'value': new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
+                'identifier': 'tomorrow'
+            },
+            {
+                'id': 'common-before-class-start',
+                'name': 'Before Class Starts',
+                'value': 'before-class-start',
+                identifier: 'before-class-start',
+                isCustomDropDown: true,
+                options: [
+                    {
+                        name: 'Before Class Starts',
+                        value: 'default',
+                        isDisabled: true,
+                        isSelected: true,
+                    },
+                    ...Array.from({ length: 30 }).map((_, i) => {
+                        return {
+                            name: `${i + 1} ${i + 1 == 1 ? 'day' : 'days'}`,
+                            value: i + 1,
+                        }
+                    })
+                ]
+            },
+            {
+                'id': 'common-after-class-end',
+                'name': 'After Class Ends',
+                'value': 'after-class-end',
+                identifier: 'after-class-end',
+                isCustomDropDown: true,
+                options: [
+                    {
+                        name: 'After Class Ends',
+                        value: 'default',
+                        isDisabled: true,
+                        isSelected: true,
+                    },
+                    ...Array.from({ length: 30 }).map((_, i) => {
+                        return {
+                            name: `${i + 1} ${i + 1 == 1 ? 'day' : 'days'}`,
+                            value: i + 1,
+                        }
+                    })
+                ],
+            },
+            {
+                'id': 'common-group-month',
+                'name': 'Day Of the Month',
+                'value': 'day-of-the-month',
+                identifier: 'day-of-the-month',
+                isCustomDropDown: true,
+                options: [
+                    {
+                        name: 'Day Of the Month',
+                        value: 'default',
+                        isDisabled: true,
+                        isSelected: true,
+                    },
+                    ...generateDayOfTheMonthOptions()
+                ]
+            },
+        ]
+
+        commonOptions.forEach((option) => {
+            addOptionIfUnique(option, 'billSend', billSendGroup);
+        });
+
+        // date
+        if (date_time_slots.length > 0) {
+            // single date
+            let options = [];
+            if (date_time_slots.length === 1) {
+                options = [
+                    {
+                        'id': 'single-date-day-class-starts',
+                        'name': 'Day Class Starts',
+                        'value': date_time_slots[0].date,
+                        'identifier': 'day-class-starts'
+                    },
+                    {
+                        'id': 'single-date-specific-date',
+                        'name': 'Specific Date',
+                        'value': 'specific-date',
+                        'identifier': 'specific-date',
+                        isCustomDate: true,
+                    },
+                ];
+            } else {
+                options = [
+                    {
+                        id: 'multiple-date-each-occurrence',
+                        name: 'Each Occurrence',
+                        value: 'each-occurrence',
+                        identifier: 'each-occurrence'
+                    },
+                    {
+                        'id': 'multiple-date-specific-date',
+                        'name': 'Specific Date',
+                        'value': 'specific-date',
+                        'identifier': 'specific-date',
+                        isCustomDate: true,
+                    }
+                ];
+            }
+
+            options.forEach((option) => {
+                addOptionIfUnique(option, 'billSend', billSendGroup);
+            });
+        }
+        // recurring weekdays
+        if (day_date_time_slots.length > 0) {
+            let isCombinationOfSingleDate = false;
+            let isAcrossMultipleMonth = false;
+
+            day_date_time_slots.forEach((slot) => {
+                const { start_time, end_time, start_date, day, end_date } = slot;
+                if (start_date && !end_date) {
+                    isCombinationOfSingleDate = true;
+                }
+                if (end_date) {
+                    if (new Date(start_date).getMonth() !== new Date(end_date).getMonth()) {
+                        isAcrossMultipleMonth = true;
+                    }
+                }
+            });
+
+            let options = [];
+            // Recurring Weekday Theme
+            if (!isCombinationOfSingleDate || isAcrossMultipleMonth) {
+                options = [
+                    {
+                        id: "recurring-weekday-each-start-date",
+                        name: "Each Start Date",
+                        value: "each-start-date",
+                        identifier: "each-start-date"
+                    },
+                    {
+                        id: "recurring-weekday-each-end-date",
+                        name: "Each End Date",
+                        value: "each-end-date",
+                        identifier: "each-end-date"
+                    },
+                    {
+                        id: "recurring-weekday-each-occurrence",
+                        name: "Each Occurrence",
+                        value: "each-occurrence",
+                        identifier: "each-occurrence"
+                    },
+                    {
+                        id: "recurring-weekday-once-per-month",
+                        name: "Once Per Month",
+                        value: "once-per-month",
+                        identifier: "once-per-month"
+                    },
+                    {
+                        id: "recurring-weekday-15th-of-the-month",
+                        name: "15th of the Month",
+                        value: "15th-of-the-month",
+                        identifier: "15th-of-the-month"
+                    },
+                    {
+                        id: "recurring-weekday-last-day-of-the-month",
+                        name: "Last Day of the Month",
+                        value: "last-day-of-the-month",
+                        identifier: "last-day-of-the-month"
+                    },
+                ]
+            }
+            // Combination of Single Date and Recurring Weekday Theme
+            else {
+                options = [
+                    {
+                        id: "combination-of-single-date-and-recurring-weekday-each-occurrence",
+                        name: "Each Occurrence",
+                        value: "each-occurrence",
+                        identifier: "each-occurrence"
+                    },
+                    {
+                        id: "combination-of-single-date-and-recurring-weekday-once-per-month",
+                        name: "Once Per Month",
+                        value: "once-per-month",
+                        identifier: "once-per-month"
+                    },
+                    {
+                        id: "combination-of-single-date-and-recurring-weekday-specific-date",
+                        name: "Specific Date",
+                        value: "specific-date",
+                        identifier: "specific-date",
+                        isCustomDate: true,
+                    },
+                ]
+            }
+
+            options.forEach((option) => {
+                addOptionIfUnique(option, 'billSend', billSendGroup);
+            });
+        }
+
+        if (date_range_time_slots.length > 0) {
+
+            let end_date_of_slot;
+            let start_date_of_slot;
+            date_range_time_slots.forEach((slot) => {
+                let [start_date, end_date] = slot.date_range.split(" - ");
+                if (!end_date_of_slot) end_date_of_slot = end_date;
+                else {
+                    if (new Date(end_date_of_slot) < new Date(end_date)) {
+                        end_date_of_slot = end_date;
+                    }
+                }
+                if (!start_date_of_slot) start_date_of_slot = start_date;
+                else {
+                    if (new Date(start_date_of_slot) > new Date(start_date)) {
+                        start_date_of_slot = start_date;
+                    }
+                }
+            })
+
+
+            let options = [
+                // {
+                //     id: 'date-range-each-start-date',
+                //     name: 'Each Start Date',
+                //     value: 'each-start-date',
+                //     identifier: 'each-start-date'
+                // },
+                // {
+                //     id: 'date-range-each-end-date',
+                //     name: 'Each End Date',
+                //     value: 'each-end-date',
+                //     identifier: 'each-end-date'
+                // },
+                {
+                    id: 'date-range-once-per-month',
+                    name: 'Once Per Month',
+                    value: 30,
+                    identifier: 'once-per-month'
+                },
+                {
+                    id: 'date-range-specific-date',
+                    name: 'Specific Date',
+                    value: 'specific-date',
+                    identifier: 'specific-date',
+                    isCustomDate: true,
+                }
+            ];
+
+            options.forEach((option) => {
+                addOptionIfUnique(option, 'billSend', billSendGroup, "bill_send_btn_input");
+            });
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        groupDateMonth();
+        monthSelectorListeners();
+
+        groupDateRangeSlot();
+        groupWeekDaysSlot();
+
+        addBillOptionsAccordingToSlots();
+    });
+
+</script>
+
+{{!-- Invoice Instructions handler --}}
+<script>
+    // Function to get the selected invoice instructions
+    function getSelectedInvoiceInstructions() {
+        const radioButtons = document.querySelectorAll('input[name="invoiceInstruction"]');
+
+        let selectedValue = '';
+        // Check if a radio is selected
+        radioButtons.forEach(input => {
+            if (input.checked) {
+                selectedValue = input.value;
+            }
+        });
+        return selectedValue;
+    }
+</script>
+
+{{!-- Fee Type handler --}}
+<script>
+    // Function to get the selected fee type
+    function getSelectedFeeType() {
+        const radioButtons = document.querySelectorAll('input[name="feeType"]');
+
+        let selectedValue = '';
+        // Check if a radio is selected
+        radioButtons.forEach(input => {
+            if (input.checked) {
+                selectedValue = input.value;
+            }
+        });
+        return selectedValue;
+    }
+</script>
+
+{{!-- fee amount handler --}}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const feeInputs = document.querySelectorAll('input[name="feeAmount"]');
+        const feeCustomInput = document.querySelector('.choose_fee_amount_btn_input');
+
+        feeInputs.forEach(input => {
+            input.addEventListener('change', function () {
+                if (this.type === 'radio') {
+                    // If a radio button is selected, clear the custom input
+                    feeCustomInput.value = '';
+                }
+            });
+        });
+
+        feeCustomInput.addEventListener('input', function () {
+            // If custom input is entered, deselect all radio buttons
+            feeInputs.forEach(input => {
+                if (input.type === 'radio') {
+                    input.checked = false;
+                }
+            });
+        });
+
+    });
+    // Function to get the selected fee value
+    function getSelectedFeeValue() {
+        const feeInputs = document.querySelectorAll('input[name="feeAmount"]');
+        const feeCustomInput = document.querySelector('.choose_fee_amount_btn_input');
+        let selectedValue = '';
+        // Check if a radio is selected
+        feeInputs.forEach(input => {
+            if (input.checked) {
+                selectedValue = input.value;
+            }
+        });
+
+        // If custom input has a value, return that instead
+        if (feeCustomInput.value) {
+            selectedValue = feeCustomInput.value;
+        }
+
+        return selectedValue;
+    }
+</script>
+
+{{!-- When Should bill be sent handler --}}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const billSendInput = document.querySelectorAll('input[name="billSend"], select[name="billSend"]');
+
+        function resetOtherInputs(id) {
+            // Reset other inputs based on their type
+            document.querySelectorAll('input[name="billSend"], select[name="billSend"]').forEach(inputElement => {
+                if (inputElement.id !== id) {
+                    if (inputElement.type === 'text') {
+                        // Reset text inputs to empty
+                        inputElement.value = '';
+                    }
+
+                    if (inputElement.tagName.toLowerCase() === 'select') {
+                        // Reset select inputs to their default value (first option)
+                        inputElement.selectedIndex = 0;
+                    }
+
+                    if (inputElement.type === 'radio') {
+                        inputElement.checked = false
+                    }
+                }
+            });
+        }
+
+        billSendInput.forEach(input => {
+            if (input.type === 'radio') {
+                input.addEventListener('change', function () {
+                    resetOtherInputs(input.id);
+                })
+            }
+            else if (input.type === 'text') {
+                input.addEventListener('change', function () {
+                    resetOtherInputs(input.id);
+                })
+            }
+            else if (input.tagName.toLowerCase() === 'select') {
+                input.addEventListener('change', function () {
+                    console.log("changes");
+                    resetOtherInputs(input.id);
+                })
+            }
+
+        });
+    });
+    // Function to get the selected fee value
+    function getSelectedBillingCadence() {
+        const billSendInput = document.querySelectorAll('input[name="billSend"], select[name="billSend"]');
+        let selectedValue = '';
+        let group = '';
+
+        // Check if a radio is selected
+        billSendInput.forEach(input => {
+            if (input.type === 'text' && input.value) {
+                selectedValue = input.value;
+                group = {
+                    id: input.id,
+                    identifier: input.dataset.identifier
+                }
+            } else if (input.tagName.toLowerCase() === 'select' && input.value && input.value !== 'default') {
+                selectedValue = input.value;
+                group = {
+                    id: input.id,
+                    identifier: input.dataset.identifier
+                };
+            } else if (input.type === 'radio' && input.checked) {
+                selectedValue = input.value;
+                group = {
+                    id: input.id,
+                    identifier: input.dataset.identifier
+                };
+            }
+        });
+
+        return {
+            selectedValue,
+            group
+        };
+    }
+
+</script>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Cost Calculation for Single Date TimeSlot
+        function calculateSingleDateCost(timeslot, unitCost) {
+            // Unit cost for one occurrence (single class or event)
+            return unitCost;
+        }
+
+        // Cost Calculation for Multiple Dates Across Multiple Months
+        function calculateMultipleDatesCost(timeslot, unitCost) {
+            const occurrences = timeslot.length;  // Each date is a separate occurrence
+            return occurrences * unitCost;
+        }
+
+
+        // Cost Calculation for Recurring Date Range TimeSlot
+        function calculateTotalDays(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        function calculateRecurringDateRangeCost(timeslot, unitCost, billingCadence) {
+            let [start_date, end_date] = timeslot.date_range.split(" - ");
+            const totalDays = calculateTotalDays(start_date, end_date);
+            const occurrences = Math.ceil(totalDays / billingCadence);
+            return occurrences * unitCost;
+        }
+
+
+        // Cost Calculation for Recurring Weekday TimeSlot
+        function countWeekdayOccurrences(startDate, endDate, weekdays) {
+            console.log(startDate, endDate, weekdays)
+            const weekdaysArray = weekdays.split(',').map(day => day.trim());
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            // Map weekday names to numeric values for Date object
+            const weekdayMap = {
+                'SU': 0,
+                'MO': 1,
+                'TU': 2,
+                'WE': 3,
+                'TH': 4,
+                'FR': 5,
+                'SA': 6
+            };
+
+            let count = 0;
+            for (const weekday of weekdaysArray) {
+                const targetDay = weekdayMap[weekday];
+                let current = new Date(start);
+
+
+                // Iterate through the date range
+                while (current <= end) {
+                    if (current.getDay() === targetDay) {
+                        count++;
+                    }
+                    // Move to the next day
+                    current.setDate(current.getDate() + 1);
+                }
+            }
+
+            return count;
+        }
+
+        function calculateRecurringWeekdayCost(timeslot, unitCost) {
+            const occurrences = countWeekdayOccurrences(timeslot.start_date, timeslot.end_date, timeslot.day);
+            return occurrences * unitCost;
+        }
+
+        function findStartDateAndEndDateOfMonthForSingleDate(date) {
+            const dateObj = new Date(date);
+
+            const year = dateObj.getUTCFullYear(); // Get the year in UTC
+            const month = dateObj.getUTCMonth();   // Get the month in UTC (0-indexed)
+
+            // Get the first day of the month in UTC
+            const firstDayOfMonth = new Date(Date.UTC(year, month, 1));
+
+            // Get the last day of the month by setting the day to 0 for the next month in UTC
+            const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0));
+
+            return [firstDayOfMonth, lastDayOfMonth];
+        }
+
+
+        // Cost Calculation for Combination of Single Date and Weekday
+        function calculateCombinationCost(timeslot, unitCost) {
+            // Calculate the single date cost
+            const singleDateCost = calculateSingleDateCost({
+                date: timeslot.start_date
+            }, unitCost);
+
+
+            let [start_date, end_date] = findStartDateAndEndDateOfMonthForSingleDate(timeslot.start_date);
+
+            // Calculate recurring weekday cost
+            let slot = {
+                ...timeslot,
+                start_date: start_date.toISOString().split('T')[0],
+                end_date: end_date.toISOString().split('T')[0]
+            }
+
+            const recurringCost = calculateRecurringWeekdayCost(slot, unitCost);
+            // Total cost is the combination of both
+            return singleDateCost + recurringCost;
+        }
+
+        // Cost Calculation for Recurring Weekdays Across Multiple Months
+        function calculateRecurringWeekdaysAcrossMonthsCost(timeslot, unitCost) {
+            const occurrences = countWeekdayOccurrences(timeslot.start_date, timeslot.end_date, timeslot.day);
+            return occurrences * unitCost;
+        }
+
+
+        // billing cadence and calculate the corresponding cost
+        function calculateBillingByCadence(timeslot, unitCost, billingCadence) {
+            switch (billingCadence) {
+
+            }
+        }
+
+        function totalUnitCost(unitCost, billingCadence) {
+            let { day_date_time_slots, date_range_time_slots, date_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+
+            let cost = 0;
+            // date
+            if (date_time_slots.length > 0) {
+                // single date
+                if (date_time_slots.length === 1) {
+                    cost += calculateSingleDateCost(date_time_slots[0], unitCost);
+                } else {
+                    cost += calculateMultipleDatesCost(date_time_slots, unitCost);
+                }
+            }
+            // recurring weekdays
+            if (day_date_time_slots.length > 0) {
+                day_date_time_slots.forEach((slot) => {
+                    const { start_time, end_time, start_date, day, end_date } = slot;
+                    if (start_date && end_date) {
+                        // Check Across MultipleMonths or Not
+                        if (new Date(start_date).getMonth() !== new Date(end_date).getMonth()) {
+                            cost += calculateRecurringWeekdaysAcrossMonthsCost(slot, unitCost);
+                        } else {
+                            cost += calculateRecurringWeekdayCost(slot, unitCost);
+                        }
+                    }
+
+                    // NOT needed for single date that will calculate at the single date cost
+                    // else if (start_date && !end_date) {
+                    //  cost += calculateCombinationCost(slot, unitCost);
+                    // }
+                });
+            }
+            // date range
+            if (date_range_time_slots.length > 0) {
+                date_range_time_slots.forEach((slot) => {
+                    cost += calculateRecurringDateRangeCost(slot, unitCost, billingCadence);
+                })
+            }
+
+            console.log("cost ===>", cost);
+            return cost;
+        }
+        // Function to generate Invoice when we trigger Generate Invoice Button this function gets called
+        const generateInvoice = async () => {
+            
+            let selectedFeeAmount = getSelectedFeeValue();
+            let selectedBillingCadence = getSelectedBillingCadence();
+            let selectedFeeType = getSelectedFeeType();
+            let selectedInvoiceInstruction = getSelectedInvoiceInstructions();
+
+            if (selectedFeeAmount) {
+                selectedFeeAmount = parseInt(selectedFeeAmount);
+
+                if (!selectedFeeAmount) {
+                    alert("Please select fee amount");
+                    return;
+                }
+            } else {
+                alert("Please select fee amount");
+                return;
+            }
+
+            let members = document.querySelectorAll(".member_card");
+
+            if (members.length === 0) {
+                alert("Please add members");
+                return;
+            }
+            let members_ids = [];
+            members.forEach((member) => {
+                let id = member.getAttribute("id");
+                if (id) {
+                    members_ids.push(id);
+                }
+            });
+
+
+            let data = {
+                invoice_instruction: selectedInvoiceInstruction,
+                fee_type: selectedFeeType,
+                fee_amount: selectedFeeAmount,
+                billing_cadence: selectedBillingCadence,
+                themeSlots: JSON.parse(`{{{json displayClassifiedTimeSlots}}}`),
+                members: members_ids
+            }
+
+            let formData = new FormData();
+
+            let logo = document.querySelector("input[name='upload_image']").files[0];
+            if (logo) {
+                formData.append('file', logo);
+            }
+
+            Object.keys(data).forEach((key) => {
+                if (typeof data[key] === 'object') {
+                    data[key] = JSON.stringify(data[key]);
+                }
+                formData.append(key, data[key]);
+            })
+
+            const loader = document.getElementById("loader");
+            loader.classList.remove("d-none");
+            let result = await fetch(`/invoice/generate/{{{eventId}}}`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            let response = await result.json();
+            console.log(response)
+            if (response.success) {
+                window.location.href = `${window.location.origin}/invoice/preview/{{{eventId}}}`;
+            } else {
+                alert(response.message);
+            }
+
+            loader.classList.add("d-none");
+        }
+
+
+        function initializeGenerateInvoiceButtonListener() {
+            document.getElementById('generateInvoice').addEventListener('click', (e) => {
+                generateInvoice();
+            });
+        }
+
+        initializeGenerateInvoiceButtonListener();
+    });
+</script>

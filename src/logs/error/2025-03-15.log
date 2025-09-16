@@ -1,0 +1,6 @@
+2025-03-15 17:39:09 error: uncaughtException: connect ECONNREFUSED ::1:3306
+Error: connect ECONNREFUSED ::1:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16)
+2025-03-15 17:39:51 error: uncaughtException: connect ECONNREFUSED ::1:3306
+Error: connect ECONNREFUSED ::1:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16)

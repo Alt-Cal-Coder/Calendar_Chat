@@ -1,0 +1,543 @@
+<div class="container mt-5 invoice_preview_page">
+    <div class="preview-container">
+        <div>
+            <h1 class="text-center mb-2 invoice_header">PREVIEW YOUR INVOICE</h1>
+            <h2 class="text-center mb-2 invoice_header_subtitle">{{eventName}}</h2>
+        </div>
+
+        <div class="row justify-content-center mb-3 gap-1">
+            <div id="dateSlots">
+                <section id="dateMonthSelector"></section>
+                <section id="dateTimeSlots" class="d-flex flex-column align-items-center justify-content-center gap-2">
+                </section>
+            </div>
+
+            <div id="dateRangeSlots">
+                <section id="dateRangeMonthSelector"></section>
+                <section id="dateRangeTimeSlots"
+                    class="d-flex flex-column align-items-center justify-content-center gap-2">
+                </section>
+            </div>
+
+            <div id="daySlots">
+                <section id="daySlotsMonthSelector"></section>
+                <section id="daySlotsTimeSlots"
+                    class="d-flex flex-column align-items-center justify-content-center gap-2">
+                </section>
+            </div>
+        </div>
+
+        <div class="mb-4 d-flex justify-content-center align-items-center gap-2">
+            <section class="d-flex flex-column justify-content-center align-items-center">
+                <h5 class="invoice_card_header">INVOICE INSTRUCTIONS</h5>
+                <div class="btn-group w-100 invoice_instruction_group group_card" role="group">
+                </div>
+            </section>
+            <section class="d-flex flex-column justify-content-center align-items-center">
+                <h5 class="invoice_card_header">FEE TYPE {{{feeTypeHeader}}}</h5>
+                <div class="btn-group w-100 choose_fee_group group_card" role="group">
+                </div>
+            </section>
+            <section class="d-flex flex-column justify-content-center align-items-center">
+                <h5 class="invoice_card_header">FEE AMOUNT</h5>
+                <div class="btn-group w-100 choose_fee_amount_group group_card" role="group">
+                </div>
+            </section>
+            <section class="d-flex flex-column justify-content-center align-items-center">
+                <h5 class="invoice_card_header">WHEN SHOULD BILL BE SENT</h5>
+                <div class="btn-group w-100 bill_send_group group_card" role="group">
+                </div>
+            </section>
+        </div>
+
+        <div class="pdf-container d-flex justify-content-center align-items-center my-4">
+            <div class="pdf-wrapper" style="width: 85%; height: 800px;">
+                <canvas id="pdf-viewer" style="width: 100%; height: 100%; cursor: pointer;"></canvas>
+            </div>
+        </div>
+        <p class="text-center"><a href="#" id="downloadLink" style="color: #FFD700;">Download Invoice</a></p>
+    </div>
+
+    <!-- Enlarge PDF Modal -->
+    <div class="enlarge-container" id="enlarge-container">
+        <span class="close-enlarge" onclick="closeEnlarge()">&#10006;</span>
+        <canvas id="enlarge-pdf-viewer"></canvas>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+
+<script>
+    const invoiceData = JSON.parse(`{{{json invoice}}}`);
+    const pdfUrl = invoiceData.pdf_path;
+    let pdfDoc = null;
+    let canvas = document.getElementById('pdf-viewer');
+    let ctx = canvas.getContext('2d');
+    let enlargeCanvas = document.getElementById('enlarge-pdf-viewer');
+    let enlargeCtx = enlargeCanvas.getContext('2d');
+
+    // Load PDF
+    pdfjsLib.getDocument(pdfUrl).promise.then(doc => {
+        pdfDoc = doc;
+        renderPdf();
+    });
+
+    function renderPdf(isEnlarged = false) {
+        const targetCanvas = isEnlarged ? enlargeCanvas : canvas;
+        const targetCtx = isEnlarged ? enlargeCtx : ctx;
+        const container = isEnlarged ?
+            document.getElementById('enlarge-container') :
+            document.querySelector('.pdf-container');
+
+        pdfDoc.getPage(1).then(function (page) {
+            const viewport = page.getViewport({ scale: 1 });
+            const containerWidth = container.offsetWidth * (isEnlarged ? 0.9 : 1);
+            const containerHeight = container.offsetHeight * (isEnlarged ? 0.9 : 1);
+
+            const scale = Math.min(
+                containerWidth / viewport.width,
+                containerHeight / viewport.height
+            );
+            const scaledViewport = page.getViewport({ scale: scale });
+
+            targetCanvas.height = scaledViewport.height;
+            targetCanvas.width = scaledViewport.width;
+
+            const renderContext = {
+                canvasContext: targetCtx,
+                viewport: scaledViewport
+            };
+            page.render(renderContext);
+        });
+    }
+
+    function enlargePdf() {
+        document.getElementById('enlarge-container').style.display = 'flex';
+        renderPdf(true);
+    }
+
+    function closeEnlarge() {
+        document.getElementById('enlarge-container').style.display = 'none';
+    }
+
+    function populateInvoiceDetails() {
+        // Set invoice instruction
+        let invoice_instruction_group = document.querySelector('.invoice_instruction_group');
+        let html = `
+            <input type="radio" name="invoiceInstruction" id="${invoiceData.invoice_instruction_type.id}"
+                        value="${invoiceData.invoice_instruction_type.value}" autocomplete="off" hidden checked readonly>
+            <label class="invoice_card_btn invoice_instruction_btn"
+                for="${invoiceData.invoice_instruction_type.id}">${invoiceData.invoice_instruction_type.name}
+            </label>
+        `;
+        invoice_instruction_group.innerHTML = html;
+
+        // Set fee type
+        let fee_type_group = document.querySelector('.choose_fee_group');
+        html = `
+            <input type="radio" name="feeType" id="${invoiceData.item_type.id}" value="${invoiceData.item_type.value}" 
+                        autocomplete="off" hidden checked readonly>
+            <label class="invoice_card_btn choose_fee_btn" for="${invoiceData.item_type.id}">${invoiceData.item_type.name}</label>
+        `;
+        fee_type_group.innerHTML = html;
+
+        // Set fee amount
+        let fee_amount_group = document.querySelector('.choose_fee_amount_group');
+        html = `
+            <input type="radio" name="feeAmount" id="${invoiceData.unit_price.id}" value="${invoiceData.unit_price.value}"
+                    autocomplete="off" hidden checked readonly>
+            <label class="invoice_card_btn choose_fee_amount_btn" for="${invoiceData.unit_price.id}">${invoiceData.unit_price.name}</label>
+        `;
+        fee_amount_group.innerHTML = html;
+
+        
+        // Set bill send option
+        let bill_send_group = document.querySelector('.bill_send_group');
+        html = `
+            <input type="radio" name="billSend" id="${invoiceData.billing_cadence.id}" value="${invoiceData.billing_cadence.value}"
+                    autocomplete="off" hidden checked readonly>
+            <label class="invoice_card_btn bill_send_group_btn" for="${invoiceData.billing_cadence.id}">${invoiceData.billing_cadence.name}</label>
+        `;
+        bill_send_group.innerHTML = html;
+
+        // Update download link
+        document.getElementById('downloadLink').href = pdfUrl;
+    }
+
+    canvas.onclick = enlargePdf;
+    window.addEventListener('resize', () => renderPdf());
+    document.addEventListener('DOMContentLoaded', populateInvoiceDetails);
+</script>
+
+
+
+{{!-- THEME SLOTS --}}
+<script>
+    const monthGroups = {};
+
+    function formatDateWithFlatpickr(dateString, format, expectedFormat) {
+
+        if (!dateString || !format || !expectedFormat) {
+            return null;
+        }
+        // Parse the date string using Flatpickr's parseDate function
+        const dateObj = flatpickr.parseDate(dateString, format);
+
+        if (!dateObj) {
+            return null;
+        }
+
+        // Format the date object to yyyy-mm-dd
+        const formattedDate = flatpickr.formatDate(dateObj, expectedFormat);
+
+        return formattedDate;
+    }
+
+    function styleTimeSlots() {
+        // Select timeslots from the HTML using data attributes
+        const timeslotElements = document.querySelectorAll(".timeslot-item");
+
+        timeslotElements.forEach(timeslot => {
+            const day = timeslot.getAttribute("data-day");
+            const date = timeslot.getAttribute("data-date");
+            const startTime = timeslot.getAttribute("data-start-time");
+            const endTime = timeslot.getAttribute("data-end-time");
+            const dateRange = timeslot.getAttribute("data-date-range");
+
+            // Style based on the classification of the timeslot
+            if (day && date) {
+                // Case: Both day and date are present (e.g., M W F with a date range)
+                timeslot.innerHTML = `${day} ${startTime} ${dateRange} `;
+            } else if (day) {
+                // Case: Only the day name is present (e.g., M W F)
+                timeslot.innerHTML = `${day} ${startTime} - ${endTime} `;
+            } else if (dateRange) {
+                // Case: Date range is present (e.g., 00/00/00 - 00/00/00)
+                timeslot.innerHTML = `${dateRange} ${startTime} - ${endTime} `;
+            } else if (date) {
+                // Case: Individual dates in the same month (staggered display)
+                const dayOfMonth = new Date(date).getDate();
+                timeslot.innerHTML = `${startTime} - ${endTime} ${getMonthName(date)} ${dayOfMonth} `;
+            }
+        });
+
+    }
+
+    function getMonthName(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('default', { month: 'long' });
+    }
+
+    function groupSlotByTime(slots) {
+        const groupedSlots = slots.reduce((acc, slot) => {
+            const key = `${slot.start_time} -${slot.end_time} `;
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push(slot);
+            return acc;
+        }, {});
+
+        return groupedSlots;
+    }
+
+    // day selector ---- > start 
+    function setDateStyleIntoTimeSlots(slots) {
+        let timeSlots = document.getElementById("dateTimeSlots");
+        timeSlots.innerHTML = "";
+
+        // group by date using start_time and end_time
+        let groupedSlots = groupSlotByTime(slots);
+
+        let onlyOneGroup = Object.keys(groupedSlots).length === 1;
+
+        Object.keys(groupedSlots).map(key => {
+            const timeslot = document.createElement("div");
+            timeslot.className = "timeslot-item";
+
+            const { start_time, end_time } = groupedSlots[key][0];
+
+            let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+            let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+            let monthHTML = ``;
+            if (onlyOneGroup) {
+                monthHTML = `<td style="padding:0px 5px;"><span class="w-100 month-badge text-uppercase">${getMonthName(groupedSlots[key][0].date)}</span></td>`
+            }
+
+            let dateHTML = ``;
+            groupedSlots[key].forEach(slot => {
+                const date = slot.date;
+                const dayOfMonth = new Date(date).getDate();
+                dateHTML += `<td style="padding:0px 5px;"><span class="w-100 day-badge text-uppercase">${dayOfMonth}</span></td>`
+            })
+
+            let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${dateHTML}
+                            ${monthHTML}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                        </tr>
+                    </table>
+                `;
+
+            timeslot.innerHTML = tableHTML;
+
+            timeSlots.appendChild(timeslot);
+        })
+    }
+
+    function groupDateMonth() {
+        let { date_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+        // Group timeSlots by month
+
+        date_time_slots.forEach(timeslot => {
+            const date = timeslot.date;
+            const monthName = getMonthName(date);
+
+            if (!monthGroups[monthName]) {
+                monthGroups[monthName] = [];
+            }
+            monthGroups[monthName].push(timeslot);
+        });
+
+        let monthSelector = document.getElementById("dateMonthSelector");
+        let isMonthSelected = false;
+        // Apply staggered display for each month group
+
+        if (Object.keys(monthGroups).length >= 5) {
+            // drop down menu
+            monthSelector.innerHTML = "";
+
+            const selector = document.createElement("select");
+            selector.classList.add("month-select-dropdown");
+
+            for (const monthName in monthGroups) {
+                const timeslots = monthGroups[monthName];
+
+                let option = document.createElement("option");
+                option.setAttribute("value", monthName);
+                option.textContent = monthName;
+                selector.appendChild(option);
+
+                if (!isMonthSelected) {
+                    option.selected = true;
+                    setDateStyleIntoTimeSlots(timeslots);
+                    isMonthSelected = true;
+                }
+            }
+
+            selector.onchange = () => {
+                const selectedMonth = selector.value;
+                const selectedTimeslots = monthGroups[selectedMonth];
+                setDateStyleIntoTimeSlots(selectedTimeslots);
+            }
+
+            monthSelector.appendChild(selector);
+        }
+        else if (Object.keys(monthGroups).length === 1) {
+            // only one month
+
+            const timeslots = monthGroups[Object.keys(monthGroups)[0]];
+
+            let groupedSlots = groupSlotByTime(timeslots);
+            if (Object.keys(groupedSlots).length >= 2) {
+                // staggered display
+                const monthName = Object.keys(monthGroups)[0];
+                const monthHeader = document.createElement("div");
+                monthHeader.classList.add("month-header-single");
+
+                const inputRadio = document.createElement("input");
+                inputRadio.setAttribute("type", "radio");
+                inputRadio.setAttribute("name", "month_selector");
+                inputRadio.setAttribute('id', `month_selector_${monthName} `);
+                inputRadio.setAttribute("value", monthName);
+                inputRadio.setAttribute('hidden', 'true');
+                inputRadio.disabled = true;
+                monthHeader.appendChild(inputRadio);
+
+                const label = document.createElement("label");
+                label.setAttribute("for", `month_selector_${monthName} `);
+                label.textContent = monthName;
+                monthHeader.appendChild(label);
+
+                monthHeader.appendChild(inputRadio);
+                monthHeader.appendChild(label);
+                monthSelector.appendChild(monthHeader);
+            }
+
+            setDateStyleIntoTimeSlots(monthGroups[Object.keys(monthGroups)[0]]);
+        }
+        else {
+            for (const monthName in monthGroups) {
+                const timeslots = monthGroups[monthName];
+
+                // Create a header for the month
+                const monthHeader = document.createElement("div");
+                monthHeader.classList.add("month-header");
+
+                const inputRadio = document.createElement("input");
+                inputRadio.setAttribute("type", "radio");
+                inputRadio.setAttribute("name", "month_selector");
+                inputRadio.setAttribute('id', `month_selector_${monthName} `);
+                inputRadio.setAttribute("value", monthName);
+                inputRadio.setAttribute('hidden', 'true');
+                monthHeader.appendChild(inputRadio);
+
+                if (!isMonthSelected) {
+                    monthHeader.classList.add('active');
+                    inputRadio.checked = true;
+                    setDateStyleIntoTimeSlots(timeslots);
+                    isMonthSelected = true;
+                }
+
+                const label = document.createElement("label");
+                label.setAttribute("for", `month_selector_${monthName} `);
+                label.textContent = monthName;
+                monthHeader.appendChild(label);
+
+                monthHeader.appendChild(inputRadio);
+                monthHeader.appendChild(label);
+                monthSelector.appendChild(monthHeader);
+            }
+        }
+    }
+
+    function monthSelectorListeners() {
+        document.querySelectorAll('input[name="month_selector"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                document.querySelectorAll('.month-header').forEach(function (header) {
+                    header.classList.remove('active'); // Remove active class from all headers
+                });
+                if (radio.checked) {
+                    radio.parentElement.classList.add('active'); // Add active class to the checked header
+                    setDateStyleIntoTimeSlots(monthGroups[radio.value]);
+                }
+            });
+        });
+    }
+    // day selector ---- > end
+
+    function groupDateRangeSlot() {
+        let { date_range_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+
+        console.log(date_range_time_slots);
+
+        const dateRangeTimeSlots = document.getElementById("dateRangeTimeSlots");
+        date_range_time_slots.forEach((slot) => {
+            const timeslot = document.createElement("div");
+            timeslot.className = "timeslot-item";
+
+            const { start_time, end_time, date_range } = slot;
+            const date = date_range.split(" - ");
+
+            let startDate = `<td style="padding:0px 5px;"><span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(date[0], "Y-m-d", "m-d-Y")}</span></td>`;
+
+            let endDate = `<td style="padding:0px 5px;"><span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(date[1], "Y-m-d", "m-d-Y")}</span></td>`;
+
+            let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+            let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+            let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${startDate}
+                            ${endDate}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                        </tr>
+                    </table>
+                `;
+
+            timeslot.innerHTML = tableHTML;
+            dateRangeTimeSlots.appendChild(timeslot);
+        })
+    }
+
+    function groupWeekDaysSlot() {
+        let { day_date_time_slots } = JSON.parse(`{{{json displayClassifiedTimeSlots}}}`);
+
+        const daySlotsTimeSlots = document.getElementById("daySlotsTimeSlots");
+
+        day_date_time_slots.forEach((slot) => {
+            const timeslot = document.createElement("div");
+            timeslot.className = "timeslot-item";
+
+            const { start_time, end_time, start_date, day, end_date } = slot;
+
+            let dayHTML = ``;
+            let days = day.split(",");
+
+            days.forEach((day) => {
+                dayHTML += `<td style="padding:0px 5px;"><span class="w-100 day-badge text-uppercase">${day}</span></td>`
+            });
+
+            if (start_date && end_date) {
+
+                let startDateHTML = `<td style="padding:0px 5px;"><span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(start_date, "Y-m-d", "m-d-Y")}</span></td>`;
+
+                let endDateHTML = `<td style="padding:0px 5px;"><span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(end_date, "Y-m-d", "m-d-Y")}</span></td>`;
+
+                let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+                let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+                let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${dayHTML}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                            ${startDateHTML}
+                            ${endDateHTML}
+                        </tr>
+                    </table>
+                    `;
+                timeslot.innerHTML = tableHTML;
+            } else {
+                let startTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span></td>`;
+
+                let endTimeHTML = `<td style="padding:0px 5px;"><span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span></td>`;
+
+                let startDateHTML = ``;
+
+                if (start_date) {
+                    startDateHTML = `<td style="padding:0px 5px;"><span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(start_date, "Y-m-d", "m-d-Y")}</span></td>`;
+                }
+
+                let endDateHTML = ``;
+                if (end_date) {
+                    endDateHTML = `<td style="padding:0px 5px;"><span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(end_date, "Y-m-d", "m-d-Y")}</span></td>`;
+                }
+
+                let tableHTML = `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                        <tr>
+                            ${dayHTML}
+                            ${startTimeHTML}
+                            ${endTimeHTML}
+                            ${startDateHTML}
+                            ${endDateHTML}
+                        </tr>
+                    </table>
+                `;
+                timeslot.innerHTML = tableHTML;
+            }
+
+            dateRangeTimeSlots.appendChild(timeslot);
+        })
+    }
+
+    // Wait for the DOM to be fully loaded before executing the script
+    document.addEventListener('DOMContentLoaded', function () {
+        groupDateMonth();
+        monthSelectorListeners();
+
+        groupDateRangeSlot();
+        groupWeekDaysSlot();
+    });
+</script>

@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:ae8bf8a6-2963-4e53-8c87-419388a655d5-0
+
+
+DTSTAMP:20250421T113132Z
+SUMMARY:Monday Kod x Meeting
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Monday Kod x Meeting":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250421T113132Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:ae8bf8a6-2963-4e53-8c87-419388a655d5
+X-WR-CALNAME:
+X-CREATOR-ID:17
+END:VEVENT
+
+BEGIN:VEVENT
+UID:ae8bf8a6-2963-4e53-8c87-419388a655d5-1
+DTSTART:20250421T1300Z
+DTEND:20250421T1400Z
+DTSTAMP:20250421T113132Z
+SUMMARY:Monday Kod x Meeting
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:KodX-2
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Monday Kod x Meeting":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250421T113132Z
+SEQUENCE:0
+RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20250421T1400Z
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:ae8bf8a6-2963-4e53-8c87-419388a655d5
+X-WR-CALNAME:
+X-CREATOR-ID:17
+END:VEVENT
+
+
+X-EXTRA:[{"message":"Hi This is a test event please check records in the database"},{"location":"Lahore, Punjab, Pakistan"},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"main\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@kodxsystem.com\",\"mobile\":\"07378492257\",\"isEmailChecked\":false,\"isMobileChecked\":false}]"},{"contact_group_id":"Kod x System"},{"city":"Lahore"},{"state":"Punjab"},{"country":"Pakistan"},{"room":""},{"place":""}]
+END:VCALENDAR

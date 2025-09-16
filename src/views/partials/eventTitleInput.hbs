@@ -1,0 +1,19 @@
+<div class="mb-3">
+    <input type="text" name="title" id="title" class="form-control styled_input" required placeholder="EVENT NAME">
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const inputs = document.querySelectorAll(".styled_input");
+
+    inputs.forEach(input => {
+      input.addEventListener("input", function () {
+        if (this.value.trim() !== "") {
+          this.classList.add("filled");
+        } else {
+          this.classList.remove("filled");
+        }
+      });
+    });
+  });
+</script>

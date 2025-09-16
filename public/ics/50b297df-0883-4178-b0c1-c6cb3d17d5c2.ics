@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:50b297df-0883-4178-b0c1-c6cb3d17d5c2-0
+
+
+DTSTAMP:20250425T002912Z
+SUMMARY:asd
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="asd":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250425T002912Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:50b297df-0883-4178-b0c1-c6cb3d17d5c2
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+BEGIN:VEVENT
+UID:50b297df-0883-4178-b0c1-c6cb3d17d5c2-1
+
+
+DTSTAMP:20250425T002912Z
+SUMMARY:asd
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="asd":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250425T002912Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:50b297df-0883-4178-b0c1-c6cb3d17d5c2
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+
+X-EXTRA:[{"message":"qwdas"},{"location":"Lahore, Punjab, Pakistan"},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"parent\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@kodxsystem.com\",\"mobile\":\"07378492257\",\"isEmailChecked\":false,\"isMobileChecked\":false}]"},{"contact_group_id":"2"},{"isPaid":"true"},{"city":"Lahore"},{"state":"Punjab"},{"country":"Pakistan"},{"room":""},{"place":""}]
+END:VCALENDAR

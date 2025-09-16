@@ -1,0 +1,1137 @@
+<div class="container-sm custom-container min-vh-100 d-flex justify-content-center align-items-center py-5" id="create-event">
+    <div class="event-form p-2 rounded mb-5 p-sm-3 p-md-5">
+        <h3 class="text-center mb-4">CREATE A NEW EVENT MESSAGE</h3>
+        <form class="w-100" id="eventForm" enctype="multipart/form-data">
+            <div class="row mb-3 align-items-center">
+                {{> groupSelect}}
+                {{> recipientInput}}
+            </div>
+
+            {{> eventDetails}}
+            {{> dateSlots defaultHour="00" defaultMinute="00" }}
+            {{> weeklySlots defaultHour="00" defaultMinute="00" }}
+            {{> messageInput}}
+            {{> locationInput}}
+            {{!-- {{> eventLocationInformation}} --}}
+
+            <button type="button" class="btn bg-white d-flex align-items-center ms-auto gap-2 rounded-pill" id="reviewButton">
+                <i class="bi bi-send-fill"></i> Review
+            </button>
+            <button type="submit" class="btn bg-white d-flex align-items-center ms-auto gap-2 rounded-pill" id="formSubmitButton">
+                <i class="bi bi-send-fill"></i> Send
+            </button>
+        </form>
+    </div>
+</div>
+
+{{> userModal}}
+{{> loader}}
+
+<div class="container-sm custom-container min-vh-100 d-flex justify-content-center align-items-center py-5 d-none"
+    id="review-event">
+    <div class="event-form p-4 rounded mb-5">
+        <h4 class="text-center mb-5 review-header">REVIEW YOUR EVENT</h4>
+        <div class="row justify-content-center" id="reviewEventContainer">
+        </div>
+        <div class="d-flex justify-content-between mt-2">
+            <button type="button" class="btn bg-white d-flex align-items-center gap-2 rounded-pill" id="editButton">
+                <i class="bi bi-pen-fill"></i> Edit
+            </button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-checkbox rounded-pill" id="markAsPaidBtn">
+                    <i class="bi bi-cash-stack"></i> Make this a paid event
+                </input>
+                <button type="button" class="btn bg-white d-flex align-items-center gap-2 rounded-pill" id="sendButton">
+                    <i class="bi bi-send-fill"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-checkbox {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        background: transparent;
+        border: 2px solid #fff;
+        color: #fff;
+        background: transparent;
+        cursor: pointer;
+        transition: 0.3s all;
+        user-select: none;
+    }
+
+    .btn-checkbox:hover {
+        color: #fff;
+    }
+    
+    .btn-checkbox.active {
+        background: #323030;
+        border: 2px solid #e1bb53;
+        color: white;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Hello Claude");
+        const selectedFiles = [];
+        let isPaid= false;
+        const recipientsList = document.getElementById("recipientsList");
+
+        // Initialize all components
+        initializeComponents();
+
+        function initializeComponents() {
+            setupDropdownMenus();
+            setupRecipientManagement();
+            setupFileManagement();
+            setupFormSubmission();
+            setupGroupSelection();
+            setupUserModal();
+            initializeTimeSlotContainers();
+            checkForCreator();
+            initializeReviewScreenAction();
+        }
+
+        function formDataToObject(formData, jsonKeys = []) {
+            let finalFormData = {};
+            for (var pair of formData.entries()) {
+                finalFormData[pair[0]] = jsonKeys.includes(pair[0]) ? JSON.parse(pair[1]) : pair[1];
+            }
+            return finalFormData;
+        }
+
+        function setupDropdownMenus() {
+            document.querySelectorAll(".dropdown-menu").forEach(dropdown => {
+                dropdown.addEventListener("click", e => e.stopPropagation());
+            });
+        }
+
+        function createRecipientRow(name = "", email = "", mobile = "", user_type = "", mobile_check = "", parent_id = null, child_index = null) {
+            const row = document.createElement("div");
+            row.classList.add("row", "mb-3");
+
+            if (user_type === "child") {
+                row.style.transform = "translateX(20px)"; // Shift child rows
+            }
+
+            const shouldAddInputFormateClass = name || email || mobile || user_type || mobile_check;
+
+            // Determine index pattern: Parent -> "parent_index", Child -> "parent_index-child_index"
+            let indexKey = parent_id !== null ? `${parent_id}-${child_index}` : `${child_index ?? recipientsList.children.length}`;
+
+            row.dataset.indexKey = indexKey; // Store the index in a data attribute
+
+            row.innerHTML = `
+                <div class="col-md-2 d-flex justify-content-center align-items-center">
+                    <select name="user_type" required class="styled_input recipients_input_box form-control ${shouldAddInputFormateClass ? 'custom_input_fill_class' : ''}">
+                        <option value="main" ${user_type === "main" ? 'selected': ''}>Main</option>
+                        <option value="parent" ${user_type === "parent" ? 'selected': ''}>Parent</option>
+                        <option value="child" ${user_type === "child" ? 'selected': ''}>Child</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex justify-content-center align-items-center">
+                    <input type="text" name="name" required 
+                        class="styled_input form-control recipients_input_box ${shouldAddInputFormateClass ? 'custom_input_fill_class' : ''}" 
+                        placeholder="Name" value="${name}" />
+                </div>
+                <div class="col-md-3 gap-1 d-flex justify-content-center align-items-center">
+                    <input type="checkbox" name="email_check" />
+                    <input type="email" name="email" required 
+                        class="styled_input form-control recipients_input_box ${shouldAddInputFormateClass ? 'custom_input_fill_class' : ''}" 
+                        placeholder="Email" value="${email}" />
+                </div>
+                <div class="col-md-3 gap-1 d-flex justify-content-center align-items-center">
+                    <input type="checkbox" name="mobile_check" />
+                    <input type="text" name="mobile" class="styled_input form-control recipients_input_box ${shouldAddInputFormateClass ? 'custom_input_fill_class' : ''}" placeholder="Mobile with country code" value="${mobile}" />
+                </div>
+                <div class="col-md-2 d-flex justify-content-center align-items-center">
+                    <button class="btn btn-sm addButton" type="button">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 0C4.03754 0 0 4.03754 0 9C0 13.9625 4.03754 18 9 18C13.9625 18 18 13.9625 18 9C18 4.03754 13.9625 0 9 0ZM9 1.38462C13.2141 1.38462 16.6154 4.78592 16.6154 9C16.6154 13.2141 13.2141 16.6154 9 16.6154C4.78592 16.6154 1.38462 13.2141 1.38462 9C1.38462 4.78592 4.78592 1.38462 9 1.38462ZM8.30769 4.84615V8.30769H4.84615V9.69231H8.30769V13.1538H9.69231V9.69231H13.1538V8.30769H9.69231V4.84615H8.30769Z" fill="#AAAAAA" />
+                        </svg>
+                    </button>
+                    <button class="btn btn-sm addChildButton text-white d-none" type="button">
+                        <i class="bi bi-person-plus-fill"></i> Add Child
+                    </button>
+                    <button class="btn btn-sm deleteButton" type="button">
+                        <i class="bi bi-trash-fill text-white"></i>
+                    </button>
+                </div>
+            `;
+
+            recipientsList.appendChild(row);
+            setupRowButtons(row, indexKey);
+
+            const userTypeSelect = row.querySelector('select[name="user_type"]');
+            const addChildButton = row.querySelector(".addChildButton");
+
+            if (user_type === "parent") {
+                addChildButton.classList.remove("d-none");
+            }
+
+            userTypeSelect.addEventListener("change", () => {
+                if (userTypeSelect.value === "parent") {
+                    addChildButton.classList.remove("d-none");
+                } else {
+                    addChildButton.classList.add("d-none");
+                }
+
+                // Remove translateX when type changes
+                if (userTypeSelect.value !== "child") {
+                    row.style.transform = "translateX(0)";
+                } else {
+                    row.style.transform = "translateX(20px)";
+                }
+            });
+
+            row.querySelectorAll("input, select").forEach((element) => {
+                element.addEventListener("input", () => {
+                    if (element.value.trim() !== "") {
+                        element.classList.add("filled");
+                    } else {
+                        element.classList.remove("filled");
+                    }
+                });
+
+                // If field already has a value, add the class initially
+                if (element.value.trim() !== "") {
+                    element.classList.add("filled");
+                }
+            });
+            updateRowOfRecipients();
+        }
+
+        function setupRowButtons(row, parentIndex) {
+            const deleteButton = row.querySelector(".deleteButton");
+            const addButton = row.querySelector(".addButton");
+            const addChildButton = row.querySelector(".addChildButton");
+
+            deleteButton.addEventListener("click", () => {
+                row.remove();
+                updateRowOfRecipients();
+            });
+
+            addButton.addEventListener('click', () => {
+                addButton.remove();
+                row.querySelectorAll('.recipients_input_box').forEach(input => {
+                    if (input.value !== "") {
+                        input.classList.add('custom_input_fill_class');
+                    }
+                });
+                createRecipientRow("", "", "", "main", "", null, null);
+            });
+
+            addChildButton.addEventListener("click", () => {
+                // Find the number of children already added for this parent
+                const childCount = [...recipientsList.children].filter(child => 
+                    child.dataset.indexKey?.startsWith(`${parentIndex}-`)
+                ).length;
+
+                createRecipientRow("", "", "", "child", "", parentIndex, childCount);
+            });
+        }
+
+        function updateRowOfRecipients() {
+            const nodes = recipientsList.querySelectorAll('.row');
+            
+            nodes.forEach((node, index) => {
+                const buttonContainer = node.querySelector('.col-md-2:last-child'); // Fix selector for button container
+                let addButton = node.querySelector('.addButton');
+                let deleteButton = node.querySelector('.deleteButton');
+
+                if (index === nodes.length - 1) {
+                    // Ensure only the last row has the Add button
+                    if (!addButton) {
+                        addButton = document.createElement("button");
+                        addButton.classList.add("btn", "btn-sm", "addButton");
+                        addButton.type = "button";
+                        addButton.innerHTML = `
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 0C4.03754 0 0 4.03754 0 9C0 13.9625 4.03754 18 9 18C13.9625 18 18 13.9625 18 9C18 4.03754 13.9625 0 9 0ZM9 1.38462C13.2141 1.38462 16.6154 4.78592 16.6154 9C16.6154 13.2141 13.2141 16.6154 9 16.6154C4.78592 16.6154 1.38462 13.2141 1.38462 9C1.38462 4.78592 4.78592 1.38462 9 1.38462ZM8.30769 4.84615V8.30769H4.84615V9.69231H8.30769V13.1538H9.69231V9.69231H13.1538V8.30769H9.69231V4.84615H8.30769Z" fill="#AAAAAA" />
+                            </svg>
+                        `;
+
+                        addButton.addEventListener("click", () => {
+                            createRecipientRow();
+                        });
+
+                        if (deleteButton) {
+                            buttonContainer.insertBefore(addButton, deleteButton);
+                        } else {
+                            buttonContainer.appendChild(addButton);
+                        }
+                    }
+                } else {
+                    // Remove Add button from non-last rows
+                    addButton?.remove();
+                }
+
+                // Ensure Delete button is always present in every row
+                if (!deleteButton) {
+                    deleteButton = document.createElement("button");
+                    deleteButton.classList.add("btn", "btn-sm", "deleteButton");
+                    deleteButton.type = "button";
+                    deleteButton.innerHTML = `<i class="bi bi-trash-fill text-white"></i>`;
+                    buttonContainer.appendChild(deleteButton);
+
+                    deleteButton.addEventListener("click", () => {
+                        node.remove();
+                        updateRowOfRecipients();
+                    });
+                }
+            });
+        }
+
+        function setupRecipientManagement() {
+            const addMoreButton = document.getElementById("addMoreButton");
+            addMoreButton.addEventListener("click", () => createRecipientRow());
+        }
+
+        function setupFileManagement() {
+            const fileInput = document.getElementById('messageFileInput');
+            const filesPreview = document.getElementById('files-preview');
+
+            fileInput.addEventListener('change', handleFileSelect);
+
+            function handleFileSelect(event) {
+                const newFiles = Array.from(event.target.files);
+                selectedFiles.push(...newFiles);
+                updateFilesPreview();
+            }
+
+            function updateFilesPreview() {
+                filesPreview.innerHTML = '';
+                selectedFiles.forEach((file, index) => {
+                    const filePreview = createFilePreview(file, index);
+                    filesPreview.appendChild(filePreview);
+                });
+            }
+
+            function createFilePreview(file, index) {
+                const previewContainer = document.createElement('div');
+                previewContainer.className = 'file-preview d-flex align-items-center mb-2';
+
+                const fileIcon = document.createElement('i');
+                fileIcon.className = getFileIconClass(file.type);
+                fileIcon.style.fontSize = '24px';
+                fileIcon.style.marginRight = '10px';
+
+                const fileName = document.createElement('span');
+                fileName.textContent = file.name;
+                fileName.className = 'flex-grow-1';
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'btn btn-sm btn-danger';
+                deleteButton.onclick = () => deleteFile(index);
+
+                previewContainer.appendChild(fileIcon);
+                previewContainer.appendChild(fileName);
+                previewContainer.appendChild(deleteButton);
+
+                return previewContainer;
+            }
+
+            function getFileIconClass(fileType) {
+                const iconMap = {
+                    'image/': 'bi bi-file-image',
+                    'video/': 'bi bi-file-play',
+                    'audio/': 'bi bi-file-music',
+                    'application/pdf': 'bi bi-file-pdf'
+                };
+                return iconMap[Object.keys(iconMap).find(key => fileType.startsWith(key))] || 'bi bi-file-earmark';
+            }
+
+            function deleteFile(index) {
+                selectedFiles.splice(index, 1);
+                updateFilesPreview();
+            }
+        }
+
+        function setupFormSubmission() {
+            const eventForm = document.getElementById("eventForm");
+            const loader = document.getElementById("loader");
+
+            eventForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                {{!-- loader.classList.remove("d-none"); --}}
+
+                const formData = new FormData(e.target);
+                const groupId = getGroupId();
+                const timeSlots = collectTimeSlots();
+                const weeklySlots = collectWeeklySlots();
+                const recipients = collectRecipients();
+                const address = window?.selectedAddress || {};
+
+                formData.append("timeSlots", JSON.stringify([...timeSlots, ...weeklySlots]));
+                formData.append("members", JSON.stringify(recipients));
+                formData.append("contact_group_id", groupId);
+
+                const eventLocation = document.getElementById('eventLocation')?.value || "";
+                const website = document.getElementById('website')?.value || "";
+                const eventEmail = document.getElementById('eventEmail')?.value || "";
+
+                formData.set('eventLocation', eventLocation);
+                formData.set('website', website);
+                formData.set('eventEmail', eventEmail);
+                isPaid && formData.set('isPaid', isPaid);
+
+                Object.keys(address).forEach(key => formData.append(key, address[key]));
+                selectedFiles.forEach(file => formData.append(`files`, file));
+
+                const groupPayload = window.getGroupPayload();
+                if(groupPayload?.groupImage) {
+                    formData.set('groupImage', groupPayload?.groupImage);
+                }
+
+                ['startDate', 'endDate', 'startTime', 'endTime', 'slot_name', 'weekdays', "name", "email", "mobile", "email_check", "mobile_check", "user_type"].forEach(key => formData.delete(key));
+                
+                console.log(Object.fromEntries(formData.entries()));
+                {{!-- console.log({recipients}) --}}
+                {{!-- return; --}}
+
+                try {
+                    const response = await fetch('/event', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const eventData = await response.json();
+                        if(isPaid) {
+                            window.location.href = `/invoice/${eventData?.eventId}`
+                        } else {
+                            // window.location.reload();
+                            window.location.href = "/event/all"
+                        }
+                    } else {
+                        console.error('Error:', response.status);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                } finally {
+                    loader.classList.add("d-none");
+                }
+
+                function formatDateWithFlatpickr(dateString, format, expectedFormat) {
+
+                    if (!dateString || !format || !expectedFormat) {
+                        return null;
+                    }
+                    // Parse the date string using Flatpickr's parseDate function
+                    const dateObj = flatpickr.parseDate(dateString, format);
+
+                    if (!dateObj) {
+                        return null;
+                    }
+
+                    // Format the date object to yyyy-mm-dd
+                    const formattedDate = flatpickr.formatDate(dateObj, expectedFormat);
+
+                    return formattedDate;
+                }
+
+                function getGroupId() {
+                    const groupSelect = document.getElementById("groupSelect");
+                    const newGroupInput = document.getElementById("newGroupInput");
+                    return (groupSelect.value === "new" || groupSelect.value === "new_option") ? newGroupInput.value : groupSelect.value;
+                }
+
+                function collectTimeSlots() {
+                    return collectSlots('#time-slot-container .row', 1);
+                }
+
+                function collectWeeklySlots() {
+                    return collectSlots('#weekly-slot-container .row', 2);
+                }
+
+                function collectSlots(selector, type) {
+                    return Array.from(document.querySelectorAll(selector)).map(row => ({
+                        type,
+                        startDate: formatDateWithFlatpickr(row.querySelector('[name="startDate"]').value, 'm-d-Y', 'Y-m-d'),
+                        endDate: formatDateWithFlatpickr(row.querySelector('[name="endDate"]').value, 'm-d-Y', 'Y-m-d'),
+                        startTime: changeTo24Hours(row.querySelector(`[name="startTime"]`).value),
+                        endTime: changeTo24Hours(row.querySelector(`[name="endTime"]`).value),
+                        slotName: row.querySelector('[name="slot_name"]').value,
+                        ...(type === 2 && { weekdays: Array.from(row.querySelectorAll('.week-days-input:checked')).map(cb => cb.value) }),
+                    }));
+                }
+
+                function collectRecipients() {
+                    return Array.from(recipientsList.children).map(recipient => ({
+                        indexKey: recipient.dataset.indexKey,  // Store the parent-child index format
+                        user_type: recipient.querySelector("select[name='user_type']")?.value,
+                        name: recipient.querySelector("input[name='name']").value,
+                        email: recipient.querySelector("input[name='email']").value,
+                        mobile: recipient.querySelector("input[name='mobile']").value,
+                        isEmailChecked: recipient.querySelector("input[type=checkbox][name=email_check]")?.checked || false,
+                        isMobileChecked: recipient.querySelector("input[type=checkbox][name=mobile_check]")?.checked || false,
+                    }));
+                }
+
+                function changeTo24Hours(time) {
+                    if (!time) return null;
+                    let [hour, minute, amPm] = time.split(/:| /);
+                    let hour24 = parseInt(hour, 10);
+                    if (amPm === 'PM' && hour24 !== 12) hour24 += 12;
+                    else if (amPm === 'AM' && hour24 === 12) hour24 = 0;
+                    return `${hour24.toString().padStart(2, '0')}:${minute}`;
+                }
+            });
+        }
+
+        function setupGroupSelection() {
+            const groupSelectContainer = document.getElementById("groupSelectContainer");
+            const groupSelect = document.getElementById("groupSelect");
+            const newGroupInput = document.getElementById("newGroupInput");
+            const addNewGroupBtn = document.getElementById("addNewGroupBtn");
+            const groupImageInput = document.getElementById("groupImageInput");
+            const groupImagePreview = document.getElementById("groupImagePreview");
+            const groupImageBtn = document.getElementById("groupImageBtn");
+
+            groupSelect.addEventListener('change', function () {
+                if (this.value === 'new' || this.value === "new_option") {
+                    this.classList.add('d-none');
+                    groupImageBtn.classList.add('d-none');
+                    newGroupInput.classList.remove('d-none');
+                    addNewGroupBtn.classList.remove('d-none');
+                    recipientsList.innerHTML = "";
+                }
+                fetchUsers(this.value);
+            });
+
+            addNewGroupBtn.addEventListener('click', function () {
+                const newGroupName = newGroupInput.value.trim();
+                if (newGroupName) {
+                    addNewGroup(newGroupName);
+                }
+            });
+
+            function addNewGroup(newGroupName) {
+                const newOption = groupSelect.querySelector('option[value="new_option"]');
+                if (newOption) groupSelect.removeChild(newOption);
+
+                const newGroupOption = new Option(newGroupName, newGroupName, true, true);
+                groupSelect.add(newGroupOption, 1);
+                groupSelect.value = newGroupOption.value;
+
+                newGroupInput.classList.add('d-none');
+                addNewGroupBtn.classList.add('d-none');
+                groupSelectContainer.classList.remove('d-none');
+                groupSelect.classList.remove('d-none');
+                groupImageBtn.classList.remove('d-none');
+                if (newGroupOption.value !== "" && newGroupOption.value !== "new") {
+                    groupSelect.classList.add("filled");
+                    groupImageBtn.style.pointerEvents = "auto";
+                } else {
+                    groupSelect.classList.remove("filled");
+                    groupImageBtn.style.pointerEvents = "none";
+
+                    // Reset image preview when no group is selected
+                    groupImagePreview.src = "data:image/svg+xml,%3Csvg width='19' height='19' viewBox='0 0 19 19' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='9.45355' cy='9.45355' r='9.45355' fill='white'/%3E%3Cg clip-path='url(%23clip0_1119_204)'%3E%3Cpath d='M2.91669 16.3287C2.64532 16.2048 2.57309 15.9917 2.57839 15.7051C2.63267 12.9293 4.77263 10.4618 7.53614 10.0142C7.88097 9.95851 8.23355 9.9347 8.58327 9.92703C9.20396 9.91371 9.82546 9.90483 10.4457 9.92743C12.8004 10.0134 14.5241 11.1182 15.6524 13.1436C16.0964 13.9408 16.2894 14.8115 16.3282 15.7196C16.3404 16.0026 16.2539 16.2072 15.9907 16.3283H2.91669V16.3287Z' fill='black'/%3E%3Cpath d='M5.33008 4.93839C5.33008 2.68811 7.18602 0.855589 9.46106 0.859626C11.7304 0.863662 13.5769 2.69336 13.5774 4.93799C13.5774 7.18828 11.721 9.0212 9.44637 9.01716C7.17827 9.01313 5.33008 7.18182 5.33008 4.93839Z' fill='black'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_1119_204'%3E%3Crect width='13.7506' height='15.4695' fill='white' transform='translate(2.57812 0.859619)'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E";
+                    groupImageInput.value = ""; // Reset file input
+                    window.selectedGroupImage = null;
+                }
+                newGroupInput.value = '';
+            }
+
+            async function fetchUsers(id) {
+                if (id === "new" || id === "new_option" || !id) {
+                    recipientsList.innerHTML = "";
+                    return;
+                }
+
+                loader.classList.remove("d-none");
+
+                try {
+                    const response = await fetch(`/event/fetch-contact-group-members/${id}`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+                    const data = await response.json();
+                    populateUserTable(data.data);
+                } catch (error) {
+                    console.error("Error fetching users:", error);
+                } finally {
+                    loader.classList.add("d-none");
+                }
+            }
+
+            function populateUserTable(users) {
+                userTableBody.innerHTML = "";
+                recipientsList.innerHTML = "";
+
+                let parentIndexMap = {};
+                let parentChildMap = {};
+
+                users.forEach((user, index) => {
+
+                    if(user?.user_type === "parent" || user?.user_type === "main") {
+                        parentIndexMap[user.member_id] = index;
+                        console.log("creating parent or main:", index)
+                        createRecipientRow(user.name, user.email ?? "", user.mobile, user.user_type, index);
+                    }
+                    
+                    if(user?.user_type === "child") {
+                        parentChildMap[user.parent_id] = parentChildMap[user.parent_id] ? parentChildMap[user.parent_id] + 1 : 0;
+                        console.log("creating child:", parentIndexMap, parentChildMap)
+                        createRecipientRow(user.name, user.email ?? "", user.mobile, user.user_type, "", parentIndexMap[user.parent_id], parentChildMap[user.parent_id]);
+                    }
+                });
+            }
+        }
+
+        function setupUserModal() {
+            const openModalButton = document.getElementById("openModalButton");
+            const userTableBody = document.getElementById("userTableBody");
+            const searchBox = document.getElementById("searchBox");
+            const addButton = document.getElementById("addButton");
+
+            openModalButton.addEventListener("click", async () => {
+                let org_email = document.getElementById("org_mail").value;
+
+                if (!org_email) {
+                    alert("Please enter organization email");
+                    return;
+                }
+
+                await fetchUsers(org_email);
+                const userModal = new bootstrap.Modal(document.getElementById('userModal'));
+                userModal.show();
+            });
+
+            searchBox.addEventListener("input", () => {
+                const query = searchBox.value.toLowerCase();
+                userTableBody.querySelectorAll("tr").forEach(row => {
+                    const name = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
+                    const email = row.querySelector("td:nth-child(3)").textContent.toLowerCase();
+                    const mobile = row.querySelector("td:nth-child(4)").textContent.toLowerCase();
+                    row.style.display = (name.includes(query) || email.includes(query) || mobile.includes(query)) ? "" : "none";
+                });
+            });
+
+            addButton.addEventListener("click", () => {
+                const selectedUsers = Array.from(document.querySelectorAll(".user-checkbox:checked")).map(checkbox => ({
+                    name: checkbox.getAttribute("data-name"),
+                    email: checkbox.getAttribute("data-email"),
+                    mobile: checkbox.getAttribute("data-mobile"),
+                }));
+
+                selectedUsers.forEach(user => createRecipientRow(user.name, user.email, user.mobile));
+
+                document.querySelectorAll(".user-checkbox").forEach(checkbox => checkbox.checked = false);
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById("userModal"));
+                modal.hide();
+            });
+
+            async function fetchUsers(org_email) {
+                try {
+                    const response = await fetch(`/event/fetch-contacts/${encodeURIComponent(org_email)}`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+                    const data = await response.json();
+                    populateUserTable(data.data);
+                } catch (error) {
+                    console.error("Error fetching users:", error);
+                }
+            }
+
+            function populateUserTable(users) {
+                userTableBody.innerHTML = "";
+                recipientsList.innerHTML = "";
+                users.forEach(user => {
+                    const row = createUserTableRow(user);
+                    userTableBody.appendChild(row);
+                });
+            }
+
+            function createUserTableRow(user) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td><input type="checkbox" class="user-checkbox" data-email="${user.email ?? ""}" data-name="${user.name ?? ""}" data-mobile="${user.mobile ?? ""}"></td>
+                    <td>${user.name ?? "-"}</td>
+                    <td>${user.email ?? "-"}</td>
+                    <td>${user.mobile ?? "-"}</td>
+                `;
+                return row;
+            }
+        }
+
+        function initializeTimeSlotContainers() {
+            initializeContainer('time-slot-container');
+            initializeContainer('weekly-slot-container');
+
+            function initializeContainer(containerId) {
+                const container = document.getElementById(containerId);
+                const rows = container.querySelectorAll('.row');
+
+                rows.forEach((row, index) => {
+                    if (!row.querySelector('.button-col')) {
+                        const buttonCol = document.createElement('div');
+                        buttonCol.className = 'col-md-1 button-col';
+                        row.appendChild(buttonCol);
+                    }
+                    updateCheckboxIds(row);
+                });
+
+                updateButtons(container);
+            }
+
+            function updateButtons(container) {
+                const rows = container.querySelectorAll('.row');
+                rows.forEach((row, index) => {
+                    const buttonCol = row.querySelector('.button-col');
+                    buttonCol.innerHTML = '';
+
+                    if (rows.length == 1) {
+                        const addButton = createButton('<img src="/assets/images/plus.png" alt="plus" width="24" height="24" />', "no_style_btn", () => addRow(container));
+                        buttonCol.appendChild(addButton);
+                    }
+
+                    if (rows.length > 1 && index == rows.length - 1) {
+                        const addButton = createButton('<img src="/assets/images/plus.png" alt="plus" width="24" height="24" />', "no_style_btn", () => addRow(container));
+                        buttonCol.appendChild(addButton);
+                    }
+
+                    if (rows.length > 1) {
+                        const deleteButton = createButton('<i class="bi bi-trash-fill text-white"></i>', 'no_style_btn', () => deleteRow(row, container));
+                        buttonCol.appendChild(deleteButton);
+                    }
+                });
+            }
+
+            function createButton(icon, className, clickHandler) {
+                const button = document.createElement('button');
+                button.className = `${className}`;
+                button.innerHTML = `${icon}`;
+                button.onclick = clickHandler;
+                return button;
+            }
+
+            function addRow(container) {
+                const rows = container.querySelectorAll('.row');
+                const newRow = rows[0].cloneNode(true);
+
+                newRow.querySelectorAll('input').forEach(input => {
+                    if (input.name !== 'weekdays') {
+                        input.value = '';
+                    }
+                    if (input.type === 'checkbox') {
+                        input.checked = false;
+                    }
+                });
+
+                // Generate unique IDs for date inputs
+                const newStartDateId = generateUniqueId('startDate');
+                const newEndDateId = generateUniqueId('endDate');
+                const newStartTimeId = generateUniqueId('startTime');
+                const newEndTimeId = generateUniqueId('endTime');
+                newRow.querySelector('input[name="startDate"]').id = newStartDateId;
+                newRow.querySelector('input[name="endDate"]').id = newEndDateId;
+                newRow.querySelector('input[name="startTime"]').id = newStartTimeId;
+                newRow.querySelector('input[name="endTime"]').id = newEndTimeId;
+
+                updateCheckboxIds(newRow);
+                const buttonCol = newRow.querySelector('.button-col');
+                buttonCol.innerHTML = '';
+
+                container.appendChild(newRow);
+
+                [newStartDateId, newEndDateId].forEach(id => {
+                    // Update Flatpickr initialization for the new inputs
+                    flatpickr(`#${id}`, {
+                        dateFormat: "m-d-Y",
+                        allowInput: true,
+                    });
+                });
+
+                [newStartTimeId, newEndTimeId].forEach(id => {
+                    flatpickr(`#${id}`, {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: "h:i K", // h:i for hour:min, K for AM/PM
+                        time_24hr: false, // Use 12-hour format
+                        minuteIncrement: 1,
+                        allowInput: true,
+                    });
+                });
+
+                updateButtons(container);
+            }
+
+            function deleteRow(row, container) {
+                row.remove();
+                updateButtons(container);
+            }
+
+            function updateCheckboxIds(row) {
+                const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    const newId = generateUniqueId('checkbox');
+                    const label = row.querySelector(`label[for="${checkbox.id}"]`);
+                    checkbox.id = newId;
+                    if (label) {
+                        label.setAttribute('for', newId);
+                    }
+                });
+            }
+
+            function generateUniqueId(prefix) {
+                return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            }
+        }
+    
+        function checkForCreator() {
+            const formSubmitButton = document.getElementById("formSubmitButton");
+            const reviewButton = document.getElementById("reviewButton");
+            const isCreator = localStorage.getItem("isCreator") === "true";
+            const markAsPaidBtn = document.getElementById('markAsPaidBtn');
+
+            if(isCreator) {
+                reviewButton.classList.remove("d-none");
+                formSubmitButton.classList.add("d-none");
+
+                markAsPaidBtn.addEventListener('click', () => {
+                    markAsPaidBtn.classList.toggle('active');
+                    isPaid = !isPaid;
+                });
+            } else {
+                reviewButton.classList.add("d-none");
+                formSubmitButton.classList.remove("d-none");
+            }
+        }
+
+        function initializeReviewScreenAction() {
+            const createEventContainer = document.getElementById("create-event");
+            const reviewEventContainer = document.getElementById("review-event");
+
+            function formatDateToLocalDateString(dateString) {
+                const options = { month: "numeric", day: "numeric", year: "2-digit" };
+                return new Date(dateString).toLocaleDateString("en-US", options);
+            }
+
+            // Function to format time
+            function formatTime(timeString) {
+                if (!timeString) return "-";
+                return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
+                    hour: "numeric",
+                    minute: "numeric",
+                    hour12: true,
+                });
+            }
+
+            // Function to get day of week
+            function getDayOfWeek(dateString) {
+                if (!dateString) return "-";
+
+                return new Date(dateString)
+                    .toLocaleDateString("en-US", { weekday: "long" })
+                    .toUpperCase();
+            }
+
+            // Function to generate HTML for a single time slot
+            function generateTimeSlotHTML(slot) {
+                if (slot.type === 1) {
+                    return `
+                        <table style="background-color: black; color: white; border-collapse: collapse;">
+                            <th>
+                                <tr colspan="4">
+                                    <td  style="padding: 5px;">${slot.slotName}</td>
+                                </tr>
+                            </th>
+                            <tr>
+                                <td style="padding: 5px;">
+                                    <span class="day-badge badge w-100">${getDayOfWeek(slot.startDate)}</span>
+                                </td>
+                                <td style="padding: 5px;">FROM</td>
+                                <td style="padding: 5px;">
+                                     <span class="day-badge badge w-100">
+                                        ${formatTime(slot.startTime)}
+                                    </span>
+                                </td>
+                                <td style="padding: 5px;">
+                                     <span class="day-badge badge w-100">
+                                        ${formatTime(slot.endTime)}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px;">
+                                    <span class="day-badge badge w-100">${getDayOfWeek(slot.startDate)}</span>
+                                </td>
+                                <td style="padding: 5px;">Starts</td>
+                                <td style="padding: 5px;" >
+                                    <span class="day-badge badge w-100">
+                                        ${formatDateToLocalDateString(slot.startDate)}
+                                    </span>
+                                </td>
+                                <td style="padding: 5px;">
+                                     <span class="day-badge badge w-100">
+                                        ${formatDateToLocalDateString(slot.endDate)}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                `;
+                } else {
+                    return `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                         <th>
+                            <tr colspan="4">
+                                <td  style="padding: 5px;">${slot.slotName}</td>
+                            </tr>
+                        </th>
+                        <tr>
+                            <td style="padding: 5px;" >
+                                <span class="day-badge badge w-100">
+                                    ${formatDateToLocalDateString(slot.startDate)}
+                                </span>
+                                </td>
+                            <td style="padding: 5px;">TO</td>
+                            <td style="padding: 5px;">
+                                <span class="day-badge badge w-100">
+                                    ${formatDateToLocalDateString(slot.endDate)}
+                                </span>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px;">
+                                     <span class="day-badge badge w-100">
+                                        ${formatTime(slot.startTime)}
+                                    </span>
+                            </td>
+                            <td style="padding: 5px;">TO</td>
+                            <td style="padding: 5px;">
+                                    <span class="day-badge badge w-100">
+                                    ${formatTime(slot.endTime)}
+                                </span>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+                `;
+                }
+            }
+
+            // Function to generate HTML for all time slots
+            function generateAllTimeSlotsHTML(slots) {
+                return slots.map(generateTimeSlotHTML).join("");
+            }
+
+            function getFileIconClass(fileType) {
+                const iconMap = {
+                    'image/': 'bi bi-file-image',
+                    'video/': 'bi bi-file-play',
+                    'audio/': 'bi bi-file-music',
+                    'application/pdf': 'bi bi-file-pdf'
+                };
+                return iconMap[Object.keys(iconMap).find(key => fileType.startsWith(key))] || 'bi bi-file-earmark';
+            }
+
+            function createFilePreview(file, index, showDeleteButton = true) {
+                const previewContainer = document.createElement('div');
+                previewContainer.className = 'file-preview d-flex align-items-center mb-2';
+
+                const fileIcon = document.createElement('i');
+                fileIcon.className = getFileIconClass(file.type);
+                fileIcon.style.fontSize = '24px';
+                fileIcon.style.marginRight = '10px';
+
+                const fileName = document.createElement('span');
+                fileName.textContent = file.name;
+                fileName.className = 'flex-grow-1';
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'btn btn-sm btn-danger';
+                deleteButton.onclick = () => deleteFile(index);
+
+                previewContainer.appendChild(fileIcon);
+                previewContainer.appendChild(fileName);
+                showDeleteButton && previewContainer.appendChild(deleteButton);
+
+                return previewContainer;
+            }
+
+            function handleReviewScreen() {
+                reviewEventContainer.classList.remove("d-none");
+                createEventContainer.classList.add("d-none");
+
+                let reviewEventInnerContainer = document.getElementById("reviewEventContainer");
+                reviewEventInnerContainer.innerHTML = "";
+
+                let col = document.createElement("div");
+                col.classList.add("col-md-12");
+
+                let message = document.createElement("div");
+                message.classList.add("message");
+                message.innerHTML = `<h6 class="message-text">Message: ${document.getElementById("message").value}</h6>`;
+
+                // selected Files preview
+                let preview = document.createElement("div");
+                preview.classList.add("preview");
+
+                preview.innerHTML = "";
+                selectedFiles.forEach((file, index) => {
+                    const filePreview = createFilePreview(file, index, false);
+                    preview.appendChild(filePreview);
+                });
+
+                message.appendChild(preview);
+
+                let locationDiv = document.createElement("div");
+                locationDiv.classList.add("col-md-12");
+                locationDiv.innerHTML = `<h6 class="font-weight-bold">Location: ${document.getElementById("location").value}</h5>`;
+                
+                col.appendChild(locationDiv);
+                col.appendChild(message);
+
+                let eventDetails = document.createElement("div");
+
+                eventDetails.classList.add("event-details");
+
+                eventDetails.innerHTML = `<h5 class="font-weight-bold">${document.getElementById("title").value}</h5>`;
+
+                let timeSlotsContainer = document.createElement("div");
+                timeSlotsContainer.classList.add("time-slots", "mb-4");
+
+                function collectSlots(selector, type) {
+                    return Array.from(document.querySelectorAll(selector)).map(row => ({
+                        type,
+                        startDate: formatDateWithFlatpickr(row.querySelector('[name="startDate"]').value, 'm-d-y', 'Y-m-d'),
+                        endDate: formatDateWithFlatpickr(row.querySelector('[name="endDate"]').value, 'm-d-y', 'Y-m-d'),
+                        startTime: changeTo24Hours(row.querySelector(`[name="startTime"]`).value),
+                        endTime: changeTo24Hours(row.querySelector(`[name="endTime"]`).value),
+                        slotName: row.querySelector('[name="slot_name"]').value,
+                        ...(type === 2 && { weekdays: Array.from(row.querySelectorAll('.week-days-input:checked')).map(cb => cb.value) })
+                    }));
+                }
+
+                function changeTo24Hours(time) {
+                    if (!time) return null;
+                    let [hour, minute, amPm] = time.split(/:| /);
+                    let hour24 = parseInt(hour, 10);
+                    if (amPm === 'PM' && hour24 !== 12) hour24 += 12;
+                    else if (amPm === 'AM' && hour24 === 12) hour24 = 0;
+                    return `${hour24.toString().padStart(2, '0')}:${minute}`;
+                }
+
+                function formatDateWithFlatpickr(dateString, format, expectedFormat) {
+
+                    if (!dateString || !format || !expectedFormat) {
+                        return null;
+                    }
+                    // Parse the date string using Flatpickr's parseDate function
+                    const dateObj = flatpickr.parseDate(dateString, format);
+
+                    if (!dateObj) {
+                        return null;
+                    }
+
+                    // Format the date object to yyyy-mm-dd
+                    const formattedDate = flatpickr.formatDate(dateObj, expectedFormat);
+
+                    return formattedDate;
+                }
+
+                function collectTimeSlots() {
+                    return collectSlots('#time-slot-container .row', 1);
+                }
+
+                function collectWeeklySlots() {
+                    return collectSlots('#weekly-slot-container .row', 2);
+                }
+
+                // Collect time slots
+                const timeSlots = collectTimeSlots();
+                // Collect weekly slots
+                const weeklySlots = collectWeeklySlots();
+
+                const timeSlotsHTML = generateAllTimeSlotsHTML(timeSlots);
+                const weeklySlotsHTML = generateAllTimeSlotsHTML(weeklySlots);
+
+                // Insert the generated HTML into the DOM
+                timeSlotsContainer.innerHTML = timeSlotsHTML;
+                timeSlotsContainer.innerHTML += weeklySlotsHTML;
+
+                const recipients = [];
+                const recipientsList = document.getElementById("recipientsList");
+
+                for (let i = 0; i < recipientsList.children.length; i++) {
+                    const recipient = recipientsList.children[i];
+                    const name = recipient.querySelector("input[name='name']").value;
+                    const email = recipient.querySelector("input[name='email']").value;
+                    const mobile = recipient.querySelector("input[name='mobile']").value;
+                    recipients.push({ name, email, mobile });
+                }
+
+                let recipientsDIV = document.createElement("div");
+                recipientsDIV.classList.add("d-flex", "flex-wrap", "gap-2", "mb-4");
+
+                recipients.forEach((recipient) => {
+                    let recipientDIV = document.createElement("div");
+
+
+                    recipientDIV.classList.add("d-flex", "align-items-center", "gap-2", "tag", "badge", "rounded-pill", "recipient-box");
+                    recipientDIV.dataset.rowId = recipient.mobile;
+
+                    let pTag = document.createElement('p');
+                    pTag.innerHTML = recipient.name;
+                    pTag.classList.add("m-0");
+                    let button = document.createElement('button');
+
+                    button.innerHTML = '<img src="/assets/images/close.png" width="24" height="24" alt="close" />';
+                    button.onclick = function () {
+                        let rowId = this.parentElement.dataset.rowId;
+
+                        const recipientList = document.getElementById("recipientsList");
+
+                        for (let i = 0; i < recipientList.children.length; i++) {
+                            const recipient = recipientList.children[i];
+                            const mobile = recipient.querySelector("input[name='mobile']").value;
+
+                            if (mobile === rowId) {
+                                recipientList.children[i].remove();
+                                break;
+                            }
+                        }
+
+                        this.parentElement.remove();
+                    };
+                    recipientDIV.appendChild(pTag);
+                    recipientDIV.appendChild(button);
+
+                    recipientsDIV.appendChild(recipientDIV);
+                });
+
+                reviewEventInnerContainer.appendChild(eventDetails);
+                reviewEventInnerContainer.appendChild(col);
+                reviewEventInnerContainer.appendChild(timeSlotsContainer);
+                reviewEventInnerContainer.appendChild(recipientsDIV);
+            }
+
+            document.getElementById("sendButton").addEventListener("click", function () {
+                document.getElementById("formSubmitButton").click();
+            });
+
+            document.getElementById("editButton").addEventListener("click", function () {
+                reviewEventContainer.classList.add("d-none");
+                createEventContainer.classList.remove("d-none");
+            });
+
+            document.getElementById("reviewButton").addEventListener("click", handleReviewScreen);
+        }
+
+    });
+</script>

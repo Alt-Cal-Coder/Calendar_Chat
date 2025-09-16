@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:3f343b30-97b0-4fa1-9c8b-f95e7cfe29b1-0
+
+
+DTSTAMP:20250425T131050Z
+SUMMARY:Tahir here
+LOCATION:, , , , , , , 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Tahir here":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250425T131050Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:3f343b30-97b0-4fa1-9c8b-f95e7cfe29b1
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+BEGIN:VEVENT
+UID:3f343b30-97b0-4fa1-9c8b-f95e7cfe29b1-1
+
+
+DTSTAMP:20250425T131050Z
+SUMMARY:Tahir here
+LOCATION:, , , , , , , 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Tahir here":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250425T131050Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:3f343b30-97b0-4fa1-9c8b-f95e7cfe29b1
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+
+X-EXTRA:[{"message":""},{"location":""},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"parent\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@kodxsystem.com\",\"mobile\":\"07378492257\",\"isEmailChecked\":false,\"isMobileChecked\":false}]"},{"contact_group_id":"2"},{"isPaid":"true"}]
+END:VCALENDAR

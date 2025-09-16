@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        body {
+            font-family: "Montserrat", sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            color: white;
+            background-color: #000000;
+        }
+
+        .calendar-view {
+            display: flex;
+            height: 100vh;
+            background: linear-gradient(90deg,rgba(237, 237, 237, 1) 0%, rgba(0, 0, 0, 1) 130%);
+        }
+
+        /* Left Container - Calendar and Filters */
+        .left-container {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            //background: linear-gradient(to bottom, white, #d8d8d8, #6e6e6e, white);
+            //background: linear-gradient(to right, black, #6e6e6e, #d8d8d8, white, #d8d8d8, #6e6e6e, black);
+            border-right: 1px solid #333;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #000000;
+        }
+
+        .back-button {
+            padding: 8px 15px;
+            background-color: #e1bb53;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Montserrat", sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .calendar-section {
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-divider {
+            height: 1px;
+            background-color: #333;
+            margin: 15px 0;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .event-filter {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            color: black;
+        }
+
+        .event-dropdown {
+            padding: 8px 10px;
+            border: 1px solid #e1bb53;
+            border-radius: 5px;
+            background-color: #323030;
+            color: white;
+            font-family: "Montserrat", sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .date-filter-controls {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 10px;
+        }
+
+        .clear-filter {
+            padding: 8px 15px;
+            background-color: #e1bb53;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Montserrat", sans-serif;
+            font-size: 0.9rem;
+        }
+
+        /* Right Container - Message List */
+        .right-container {
+            flex: 7;
+            padding: 20px;
+            overflow-y: auto;
+            //background: linear-gradient(to bottom, white, #d8d8d8, #6e6e6e, white);
+            color: #e1bb53; /* Change text color to black for better readability on the new background */
+        }
+
+        .date-header {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            color: white; /* Change to black for better contrast */
+            font-weight: bold;
+        }
+
+        .no-messages {
+            text-align: center;
+            color: white; /* Darker color for better visibility on gradient background */
+            margin-top: 50px;
+            font-size: 1.2rem;
+        }
+
+        .message-group {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .sender-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #333;
+        }
+
+        .sender-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #000000;
+        }
+
+        .message-count {
+            background-color: #e1bb53;
+            color: #000000;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .message-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #e1bb53;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .message-content {
+            margin-bottom: 5px;
+            color: #000000;
+        }
+
+        .message-timestamp {
+            font-size: 0.8rem;
+            color: #333;
+            text-align: right;
+        }
+
+        .message-attachment {
+            margin-top: 5px;
+        }
+
+        .message-attachment a {
+            color: #e1bb53;
+            text-decoration: none;
+        }
+
+        .message-attachment a:hover {
+            text-decoration: underline;
+        }
+
+        /* Flatpickr calendar customization */
+        .flatpickr-calendar {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #e1bb53 !important;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-family: "Montserrat", sans-serif;
+            width: 100%;
+        }
+
+        .flatpickr-day {
+            border-radius: 5px;
+            color: #000000 !important;
+        }
+
+        .flatpickr-day.selected {
+            background-color: #e1bb53 !important;
+            border-color: #e1bb53 !important;
+            color: #000000 !important;
+        }
+
+        .flatpickr-day.selected:hover {
+            background-color: #c9a746 !important;
+            border-color: #c9a746 !important;
+        }
+
+        .flatpickr-day:hover {
+            background-color: rgba(225, 187, 83, 0.3) !important;
+        }
+
+        .flatpickr-months .flatpickr-month {
+            background-color: #e1bb53 !important;
+            color: #000000 !important;
+        }
+
+        .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background-color: #e1bb53 !important;
+            color: #000000 !important;
+        }
+
+        .flatpickr-weekday {
+            color: #000000 !important;
+            font-weight: bold;
+        }
+
+        .flatpickr-months .flatpickr-prev-month, 
+        .flatpickr-months .flatpickr-next-month {
+            color: #000000 !important;
+            fill: #000000 !important;
+        }
+
+        .flatpickr-months .flatpickr-prev-month:hover, 
+        .flatpickr-months .flatpickr-next-month:hover {
+            color: #333 !important;
+            fill: #333 !important;
+        }
+
+        .event-title, .user-info {
+            color: black;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .calendar-view {
+                flex-direction: column;
+            }
+            
+            .left-container {
+                flex: none;
+                border-right: none;
+                border-bottom: 1px solid #333;
+            }
+            
+            .right-container {
+                flex: none;
+            }
+        }
+
+        /* Add these styles to your existing CSS */
+        .message-bubble {
+            position: relative;
+            background-color: #000000;
+            color: white;
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid white;
+        }
+
+        .avatar-circle {
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #e1bb53;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #000000;
+            border: 2px solid white;
+        }
+
+        .message-content-preview {
+            margin: 10px 0;
+            line-height: 1.5;
+            font-size: 1rem;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .read-more-btn {
+            position: absolute;
+            bottom: -15px;
+            right: 20px;
+            background-color: #000000;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .read-more-btn:hover {
+            background-color: #333;
+        }
+
+        .message-timestamp-new {
+            font-size: 0.8rem;
+            color: #e1bb53;
+            margin-top: 5px;
+        }
+
+        .message-full-content {
+            display: none;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .expanded .message-content-preview {
+            display: none;
+        }
+
+        .expanded .message-full-content {
+            display: block;
+        }
+
+        .expanded .read-more-btn {
+            content: "Show Less";
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calendar-view" data-event-id="{{eventId}}" data-user-id="{{userId}}">
+        <!-- Left Container - Calendar and Filters -->
+        <div class="left-container">
+            <div class="header-section">
+                <h1 class="page-title">Chat Calendar</h1>
+                <a href="/chat/{{eventId}}/{{userId}}" class="back-button">Back to Chat</a>
+            </div>
+            
+            <!-- Calendar Section -->
+            <div class="calendar-section">
+                <input type="text" id="dateFilter" class="date-input" placeholder="Select date">
+            </div>
+            
+            <!-- Divider -->
+            <div class="section-divider"></div>
+            
+            <!-- Event Info and Filters Section -->
+            <div class="event-info-section">
+                <div id="groupInfo" data-group-name="{{groupName}}" data-user-name="{{userName}}">
+                    <h3 class="event-title">{{groupName}}</h3>
+                    <p class="user-info">User: {{userName}}</p>
+                    
+                    <div class="filter-section">
+                        <div class="event-filter">
+                            <label for="eventFilter">Filter Events:</label>
+                            <select id="eventFilter" class="event-dropdown">
+                                <option value="">Select an event</option>
+                                <!-- Events will be loaded dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="date-filter-controls">
+                            <button id="clearDateFilter" class="clear-filter">Clear Date Filter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Container - Message List -->
+        <div class="right-container">
+            <div id="dateHeader" class="date-header">
+                Select a date to view messages
+            </div>
+            
+            <div id="messagesList">
+                <div class="no-messages">No messages to display. Please select a date from the calendar.</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+    <script>
+        let initialMessages = {{{json initialMessages}}};
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const socket = io();
+
+            // DOM elements
+            const messagesList = document.getElementById("messagesList");
+            const dateHeader = document.getElementById("dateHeader");
+            const eventFilter = document.getElementById("eventFilter");
+            const dateFilter = document.getElementById("dateFilter");
+            const clearDateFilter = document.getElementById("clearDateFilter");
+            const groupInfo = document.getElementById("groupInfo");
+            
+            // Get data attributes
+            const calendarView = document.querySelector(".calendar-view");
+            const eventId = calendarView.dataset.eventId;
+            const userId = calendarView.dataset.userId;
+            const eventName = groupInfo.dataset.groupName;
+            const userName = groupInfo.dataset.userName;
+            
+            let allMessages = []; // Store all messages for filtering
+
+            // Initialize flatpickr for date selection with inline calendar
+            flatpickr("#dateFilter", {
+                dateFormat: "Y-m-d",
+                allowInput: true,
+                inline: true,
+                static: true,
+                onChange: function(selectedDates, dateStr) {
+                    if (dateStr) {
+                        displayMessagesForDate(dateStr);
+                        dateHeader.textContent = `Messages for ${formatDateForDisplay(dateStr)}`;
+                    } else {
+                        messagesList.innerHTML = '<div class="no-messages">No messages to display. Please select a date from the calendar.</div>';
+                        dateHeader.textContent = 'Select a date to view messages';
+                    }
+                }
+            });
+
+            // Clear date filter
+            clearDateFilter.addEventListener("click", () => {
+                dateFilter.value = "";
+                messagesList.innerHTML = '<div class="no-messages">No messages to display. Please select a date from the calendar.</div>';
+                dateHeader.textContent = 'Select a date to view messages';
+            });
+
+            // Format date for display
+            function formatDateForDisplay(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+
+            // Function to format message content
+            function formatMessage(message) {
+                if (!message) return '';
+                
+                try {
+                    let m = decodeURIComponent(message);
+                    return m.replaceAll("\n", "<br />");
+                } catch (e) {
+                    console.error("Error formatting message:", e);
+                    return message.replaceAll("\n", "<br />");
+                }
+            }
+
+            // Helper function to get initials from name
+            function getInitials(name) {
+                if (!name || typeof name !== 'string') return '?';
+                
+                return name
+                    .split(' ')
+                    .map(part => part.charAt(0))
+                    .join('')
+                    .toUpperCase()
+                    .substring(0, 2);
+            }
+
+            // Function to display messages for a specific date
+            function displayMessagesForDate(dateStr) {
+                const selectedDate = new Date(dateStr);
+                selectedDate.setHours(0, 0, 0, 0); // Start of day
+                
+                const nextDay = new Date(selectedDate);
+                nextDay.setDate(nextDay.getDate() + 1); // Start of next day
+                
+                // Filter messages for the selected date
+                const messagesForDate = allMessages.filter(message => {
+                    const messageDate = new Date(message.created_at);
+                    return messageDate >= selectedDate && messageDate < nextDay;
+                });
+                
+                if (messagesForDate.length === 0) {
+                    messagesList.innerHTML = '<div class="no-messages">No messages found for this date.</div>';
+                    return;
+                }
+                
+                // Group messages by sender
+                const messagesBySender = groupMessagesBySender(messagesForDate);
+                
+                // Generate HTML for grouped messages
+                let html = '';
+                
+                for (const [senderId, messages] of Object.entries(messagesBySender)) {
+                    const senderName = messages[0].username || "Unknown";
+                    const initials = getInitials(senderName);
+                    
+                    messages.forEach(message => {
+                        const messageTime = new Date(message.created_at).toLocaleTimeString();
+                        const messageContent = formatMessage(message.message.content);
+                        
+                        // Create a preview (first 150 characters)
+                        const preview = messageContent.length > 150 
+                            ? messageContent.substring(0, 150) + "..." 
+                            : messageContent;
+                        
+                        html += `
+                            <div class="message-bubble" data-message-id="${message.id || ''}">
+                                <div class="avatar-circle">${initials}</div>
+                                <div class="sender-name">${senderName}</div>
+                                <div class="message-timestamp-new">${messageTime}</div>
+                                
+                                <div class="message-content-preview">${preview}</div>
+                                <div class="message-full-content">${messageContent}</div>
+                                
+                                ${messageContent.length > 150 ? 
+                                    `<button class="read-more-btn">Read More</button>` : ''}
+                            `;
+                        
+                        if (message.message.attachment && message.message.attachment.length > 0) {
+                            html += '<div class="message-attachment">';
+                            message.message.attachment.forEach(att => {
+                                html += `<a href="${att.url}" target="_blank">${att.type} attachment</a>`;
+                            });
+                            html += '</div>';
+                        }
+                        
+                        html += '</div>';
+                    });
+                }
+                
+                messagesList.innerHTML = html;
+                
+                // Add event listeners to Read More buttons
+                document.querySelectorAll('.read-more-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const messageBubble = this.closest('.message-bubble');
+                        messageBubble.classList.toggle('expanded');
+                        this.textContent = messageBubble.classList.contains('expanded') ? 'Show Less' : 'Read More';
+                    });
+                });
+            }
+
+            // Function to group messages by sender
+            function groupMessagesBySender(messages) {
+                return messages.reduce((groups, message) => {
+                    const senderId = message.senderId;
+                    if (!groups[senderId]) {
+                        groups[senderId] = [];
+                    }
+                    groups[senderId].push(message);
+                    return groups;
+                }, {});
+            }
+
+            // Fetch user's events for the dropdown
+            async function fetchUserEvents() {
+                try {
+                    // Get cookies to find the creatorId
+                    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+                        const [key, value] = cookie.trim().split('=');
+                        acc[key] = value;
+                        return acc;
+                    }, {});
+                    
+                    const creatorId = cookies.creatorId;
+                    
+                    if (!creatorId) {
+                        console.log("Creator ID not found in cookies");
+                        return;
+                    }
+                    
+                    const response = await fetch(`/chat/user-events/${creatorId}`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.events && data.events.length > 0) {
+                            populateEventDropdown(data.events);
+                        } else {
+                            console.log("No events found or invalid response format");
+                        }
+                    } else {
+                        console.error("Failed to fetch user events");
+                    }
+                } catch (error) {
+                    console.error("Error fetching user events:", error);
+                }
+            }
+
+            // Populate the event dropdown with user's events
+            function populateEventDropdown(events) {
+                // Clear existing options except the default one
+                while (eventFilter.options.length > 1) {
+                    eventFilter.remove(1);
+                }
+                
+                // Add user's events to the dropdown
+                events.forEach(event => {
+                    const option = document.createElement("option");
+                    option.value = event.uniqueEventId;
+                    option.textContent = event.title;
+                    // Set the current event as selected
+                    if (event.uniqueEventId === eventId) {
+                        option.selected = true;
+                    }
+                    eventFilter.appendChild(option);
+                });
+            }
+
+            // Handle event selection change
+            eventFilter.addEventListener("change", function() {
+                const selectedEventId = this.value;
+                if (selectedEventId && selectedEventId !== eventId) {
+                    // Redirect to the selected event's calendar view
+                    window.location.href = `/chat-calendar/${selectedEventId}/${userId}`;
+                }
+            });
+
+            // Load initial messages
+            initialMessages = JSON.parse(initialMessages);
+            allMessages = initialMessages;
+            console.log("Initial messages loaded:", allMessages.length);
+
+            // Listen for new messages
+            socket.on("message", (data) => {
+                // Add the new message to our collection
+                allMessages.push(data);
+                
+                // If we have a date filter active, update the display if needed
+                const currentDateStr = dateFilter.value;
+                if (currentDateStr) {
+                    const messageDate = new Date(data.created_at);
+                    const selectedDate = new Date(currentDateStr);
+                    selectedDate.setHours(0, 0, 0, 0);
+                    
+                    const nextDay = new Date(selectedDate);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    
+                    if (messageDate >= selectedDate && messageDate < nextDay) {
+                        displayMessagesForDate(currentDateStr);
+                    }
+                }
+            });
+
+            // Join the chat room to receive updates
+            socket.emit("joinGroup", eventId, userName, userId);
+
+            // Fetch user's events when the page loads
+            fetchUserEvents();
+        });
+    </script>
+</body>
+
+</html>

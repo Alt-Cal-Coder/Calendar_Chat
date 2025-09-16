@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:239c6dc3-69e0-4a78-a290-d5f955cb9a9e-0
+
+
+DTSTAMP:20250620T133102Z
+SUMMARY:Check List Now
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@neurodek.com";CN="Tahir Amjad":mailto:tahir@neurodek.com
+ORGANIZER;CN="Check List Now":MAILTO:tahir@neurodek.com
+LAST-MODIFIED:20250620T133102Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:239c6dc3-69e0-4a78-a290-d5f955cb9a9e
+X-WR-CALNAME:Neurodek 2
+X-CREATOR-ID:4
+END:VEVENT
+
+BEGIN:VEVENT
+UID:239c6dc3-69e0-4a78-a290-d5f955cb9a9e-1
+
+
+DTSTAMP:20250620T133102Z
+SUMMARY:Check List Now
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@neurodek.com";CN="Tahir Amjad":mailto:tahir@neurodek.com
+ORGANIZER;CN="Check List Now":MAILTO:tahir@neurodek.com
+LAST-MODIFIED:20250620T133102Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:239c6dc3-69e0-4a78-a290-d5f955cb9a9e
+X-WR-CALNAME:Neurodek 2
+X-CREATOR-ID:4
+END:VEVENT
+
+
+X-EXTRA:[{"message":"Messages"},{"location":"Lahore, Punjab, Pakistan"},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"main\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@neurodek.com\",\"mobile\":\"\",\"isEmailChecked\":false,\"isMobileChecked\":false}]"},{"contact_group_id":"4"},{"city":"Lahore"},{"state":"Punjab"},{"country":"Pakistan"},{"room":""},{"place":""}]
+END:VCALENDAR

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background-color: #000000;
+            color: white;
+            font-family: "Montserrat", sans-serif;
+        }
+        .event-card {
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        .time-slot-card {
+            background-color: #34495e;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+        .action-btn {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .chat-btn {
+            background-color: white;
+            color: black;
+            margin-right: 10px;
+        }
+        .ics-btn {
+            background-color: white;
+            color: black;
+        }
+        .custom-container {
+            max-width: 950px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container custom-container my-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="event-card p-4">
+                    <h1 class="mb-4 text-center">{{event.title}}</h1>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h4>Event Details</h4>
+                            <p><strong>Event ID:</strong> {{event.uniqueEventId}}</p>
+                            <p><strong>Calendar ID:</strong> {{event.calendar_id}}</p>
+                            <p><strong>Organizer:</strong> {{event.email}}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Location</h4>
+                            {{#if event.address}}
+                                {{#with event.address}}
+                                    {{#if room}}<p><strong>Room/Floor:</strong> {{room}}</p>{{/if}}
+                                    {{#if place}}<p><strong>Place:</strong> {{place}}</p>{{/if}}
+                                    {{#if city}}<p><strong>City:</strong> {{city}}</p>{{/if}}
+                                    {{#if state}}<p><strong>State:</strong> {{state}}</p>{{/if}}
+                                    {{#if country}}<p><strong>Country:</strong> {{country}}</p>{{/if}}
+                                {{/with}}
+                            {{else}}
+                                <p>No location information available</p>
+                            {{/if}}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Time Slots</h4>
+                            {{#if timeSlots}}
+                                {{#each timeSlots}}
+                                    <div class="time-slot-card">
+                                        {{#if this.slot_name}}
+                                            <h5>{{this.slot_name}}</h5>
+                                        {{else}}
+                                            <h5>Time Slot {{@index}}</h5>
+                                        {{/if}}
+                                        
+                                        {{#if this.type}}
+                                            <p><strong>Type:</strong> {{#if (eq this.type "1")}}One-time{{else}}Recurring{{/if}}</p>
+                                        {{/if}}
+                                        
+                                        {{#if this.startDate}}
+                                            <p><strong>Date:</strong> {{formatDate this.startDate}}</p>
+                                        {{/if}}
+                                        
+                                        {{#if this.startTime}}
+                                            <p><strong>Time:</strong> {{this.startTime}} - {{this.endTime}}</p>
+                                        {{/if}}
+                                        
+                                        {{#if this.weekdays}}
+                                            {{#if this.weekdays.length}}
+                                                <p><strong>Days:</strong> {{formatWeekdays this.weekdays}}</p>
+                                            {{/if}}
+                                        {{/if}}
+                                    </div>
+                                {{/each}}
+                            {{else}}
+                                <p>No time slots available for this event.</p>
+                            {{/if}}
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-12 text-center">
+                            <a href="{{chatUrl}}" class="action-btn chat-btn">
+                                <i class="bi bi-chat-dots-fill"></i> Join Chat
+                            </a>
+                            <a href="/ics/{{event.uniqueEventId}}.ics" download class="action-btn ics-btn">
+                                <i class="bi bi-calendar-event"></i> Download Calendar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

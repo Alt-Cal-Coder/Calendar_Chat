@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:faf28cc2-1c25-4920-9920-369a86db8fa3-0
+DTSTART:20250508T1200Z
+DTEND:20250508T1300Z
+DTSTAMP:20250508T115357Z
+SUMMARY:Sending email and SMS
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:KodX-9
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Sending email and SMS":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250508T115357Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:faf28cc2-1c25-4920-9920-369a86db8fa3
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+BEGIN:VEVENT
+UID:faf28cc2-1c25-4920-9920-369a86db8fa3-1
+
+
+DTSTAMP:20250508T115357Z
+SUMMARY:Sending email and SMS
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Sending email and SMS":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250508T115357Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:faf28cc2-1c25-4920-9920-369a86db8fa3
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+
+X-EXTRA:[{"message":"Sending email and SMS Message"},{"location":"Lahore, Punjab, Pakistan"},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"parent\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@kodxsystem.com\",\"mobile\":\"923224512868\",\"isEmailChecked\":true,\"isMobileChecked\":true}]"},{"contact_group_id":"2"},{"city":"Lahore"},{"state":"Punjab"},{"country":"Pakistan"},{"room":""},{"place":""}]
+END:VCALENDAR

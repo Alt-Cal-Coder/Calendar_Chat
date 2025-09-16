@@ -1,0 +1,7 @@
+2025-04-29 17:07:28 error: classes is not defined
+2025-04-29 17:07:55 error: classes is not defined
+2025-04-29 17:27:15 error: Unknown column 'NaN' in 'field list'
+2025-04-29 17:29:28 error: Cannot read properties of undefined (reading 'split')
+2025-04-29 17:30:47 error: Cannot read properties of undefined (reading 'split')
+2025-04-29 17:33:59 error: Cannot read properties of undefined (reading 'split')
+2025-04-29 18:15:36 error: Cannot read properties of undefined (reading 'email')

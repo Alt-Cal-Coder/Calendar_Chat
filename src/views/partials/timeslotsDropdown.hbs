@@ -1,0 +1,47 @@
+{{!-- Timeslots Dropdown --}}
+<select class="form-select" id="timeslotDropdown">
+  <option value="">Select Timeslot</option>
+  <option value="all">All</option>
+  {{#each timeSlots}}
+    {{#if (eq this.type "2")}}
+      {{#each (formatRecurringTimeslot this)}}
+        <option value="{{this.value}}">{{this.label}}</option>
+      {{/each}}
+    {{else}}
+      <option value="{{this.timeSlotId}}">{{formatTimeslot this}}</option>
+    {{/if}}
+  {{/each}}
+</select>
+
+<script>
+  function formatTimeslot(slot) {
+    const day = moment(slot.startDate).format("dddd").toUpperCase();
+    const date = moment(slot.startDate).format("YYYY/MM/DD");
+    const startTime = moment(slot.startTime, "HH:mm:ss").format("hh:mm A");
+    const endTime = moment(slot.endTime, "HH:mm:ss").format("hh:mm A");
+    return `${day} ${date} ${startTime} - ${endTime}`;
+  }
+
+  function formatRecurringTimeslot(slot) {
+    let results = [];
+    let currentDate = moment(slot.startDate);
+    const endDate = moment(slot.endDate);
+
+    while (currentDate.isSameOrBefore(endDate, "day")) {
+      const dayAbbr = currentDate.format("dd").toUpperCase();
+      if (slot.weekdays.includes(dayAbbr)) {
+        const day = currentDate.format("dddd").toUpperCase();
+        const date = currentDate.format("YYYY/MM/DD");
+        const onlyDate = currentDate.date();
+        const startTime = moment(slot.startTime, "HH:mm:ss").format("hh:mm A");
+        const endTime = moment(slot.endTime, "HH:mm:ss").format("hh:mm A");
+        const label = `${day} ${date} ${startTime} - ${endTime}`;
+        const value = `${slot.timeSlotId}-${dayAbbr}-${onlyDate}`;
+        results.push({ value, label });
+      }
+      currentDate.add(1, "day");
+    }
+    return results;
+  }
+
+</script>

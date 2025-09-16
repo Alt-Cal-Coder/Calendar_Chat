@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Summer Planner</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      .event-form {
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+      .date-range {
+        margin-bottom: 5px;
+      }
+      #calendar {
+        overflow-x: auto;
+      }
+      .day-cell {
+        width: 100px;
+        height: 100px;
+        border: 1px solid #ccc;
+        display: inline-block;
+        vertical-align: top;
+      }
+      .event-bar {
+        background-color: blue;
+        opacity: 0.7;
+        position: absolute;
+      }
+      .tooltip {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 5px;
+        display: none;
+      }
+      .calendar_heading_bar {
+        background: #f9f9f9;
+        display: flex;
+        /* padding: 20px; */
+      }
+      .calendar_left {
+        width: 20%;
+        float: left;
+      }
+      .calendar_right {
+        width: 80%;
+        float: right;
+      }
+      .calendar_months {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .calendar_months li {
+        width: 23%;
+        float: left;
+        margin-right: 2%;
+        background: #a7c59b;
+        padding: 12px 0;
+        text-align: center;
+      }
+      ul.calendar_single_week {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        width: 23%;
+        float: left;
+        margin-right: 2%;
+        text-align: center;
+        padding: 10px 0;
+      }
+      .calendar_single_week li {
+        float: left;
+        padding: 8px 12px;
+        background: #ffffff;
+        margin-right: 12px;
+      }
+      /* .calendar_single_event {
+        border: 1px solid #999;
+        display: flex;
+      } */
+      /* .calendar_single_event .calendar_left {
+        background: #f9f9f9;
+        padding-left: 20px;
+      } */
+
+      .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+      }
+      .box,
+      .date_box div {
+        padding: 5px;
+        margin: 5px;
+        background-color: #333;
+        color: #fff;
+        border-radius: 5px;
+        text-align: center;
+      }
+      .add-button {
+        cursor: pointer;
+        font-size: 24px;
+      }
+    </style>
+
+    <style>
+      .calendar_months_container {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        gap: 0.5rem;
+      }
+      .calendar_month {
+        background: #2a2a2a;
+        text-align: center;
+        padding: 12px 0;
+        color: white;
+      }
+
+      .date_container,
+      .calendar_month,
+      .day_container {
+        width: 15rem;
+      }
+
+      .calendar_dates_container,
+      .calendar_day_container {
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        gap: 0.5rem;
+      }
+
+      .date_container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+        padding: 12px 0;
+      }
+
+      .date_cell {
+        background: #d9d9d9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 15%;
+        aspect-ratio: 1/1;
+      }
+
+      .date_cell[data-day="EXTRA_DAY"] {
+        background: #2a2a2a;
+        color: white;
+      }
+
+      .day_cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 15%;
+      }
+
+      .day_container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+        margin-top: 0.5rem;
+      }
+
+      .calendar_heading_bar {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .calendar_single_event {
+        display: flex;
+        align-items: center;
+      }
+    </style>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+  </head>
+  <body>
+    <h1>Summer Planner</h1>
+
+    <form id="eventForm" class="event-form">
+      <input type="text" id="eventName" placeholder="Event Name" required />
+      <div id="dateRanges">
+        <div class="date-range">
+          <input type="date" name="startDate" required />
+          <input type="date" name="endDate" required />
+        </div>
+      </div>
+      <div id="dateRanges">
+        <div class="date-range">
+          <input type="time" name="startTime" required />
+          <input type="time" name="endTime" required />
+        </div>
+      </div>
+      <button type="button" id="addDateRange">+</button>
+      <button type="submit">Add Event</button>
+    </form>
+
+    <h2>Events List</h2>
+    <div class="calendar_main_wrap">
+      <div class="calendar_wrap">
+        <div class="calendar_heading_bar">
+          <div class="calendar_single_event">
+            <div class="calendar_event_title calendar_left">
+              <span>Event Details</span>
+            </div>
+            <div class="calendar_month_week calendar_right" id="calendar">
+              <div
+                class="calendar_months_container"
+                id="calendar_months_container"
+              ></div>
+              <div
+                class="calendar_day_container"
+                id="calendar_day_container"
+              ></div>
+              <div
+                class="calendar_dates_container"
+                id="calendar_dates_container"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="calendar_heading_bar" id="eventsList"></div>
+      </div>
+    </div>
+    <script>
+      function generateMonthCalendar(startYear, startMonth, endYear, endMonth) {
+        const months = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+
+        const calendar = {};
+
+        let currentYear = startYear;
+        let currentMonth = startMonth;
+
+        while (
+          currentYear < endYear ||
+          (currentYear === endYear && currentMonth <= endMonth)
+        ) {
+          const monthName = months[currentMonth];
+          const firstDay = new Date(currentYear, currentMonth, 1);
+          const sundays = [];
+
+          // Find all Sundays in the month
+          for (let day = 1; day <= 31; day++) {
+            const currentDate = new Date(currentYear, currentMonth, day);
+            if (currentDate.getMonth() !== currentMonth) break; // Stop if we've moved to the next month
+            if (currentDate.getDay() === 0) {
+              // 0 represents Sunday
+              sundays.push(new Date(currentDate));
+            }
+          }
+
+          let isFirstDayIsSunday = firstDay.getDay() === 0;
+          if (isFirstDayIsSunday) {
+            sundays.shift(firstDay);
+          }
+
+          while (sundays.length + 1 <= 5) {
+            sundays.push("EXTRA_DAY");
+          }
+
+          calendar[`${monthName} ${currentYear}`] = {
+            firstDay: firstDay,
+            sundays: sundays,
+          };
+
+          // Move to the next month
+          currentMonth++;
+          if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+          }
+        }
+
+        return calendar;
+      }
+
+      function findDateRange(dateRanges) {
+        let earliestStart = new Date(8640000000000000); // Max date
+        let latestEnd = new Date(-8640000000000000); // Min date
+
+        dateRanges.forEach((range) => {
+          const start = new Date(range.startDate);
+          const end = new Date(range.endDate);
+
+          if (start < earliestStart) earliestStart = start;
+          if (end > latestEnd) latestEnd = end;
+        });
+
+        return {
+          startYear: earliestStart.getFullYear(),
+          startMonth: earliestStart.getMonth() + 1,
+          endYear: latestEnd.getFullYear(),
+          endMonth: latestEnd.getMonth() + 1,
+        };
+      }
+
+      function appendCalendarMonths(calendarData) {
+        const calendar_months_container = document.getElementById(
+          "calendar_months_container"
+        );
+        const calendar_dates_container = document.getElementById(
+          "calendar_dates_container"
+        );
+        const calendar_day_container = document.getElementById(
+          "calendar_day_container"
+        );
+
+        calendar_months_container.innerHTML = "";
+        calendar_dates_container.innerHTML = "";
+        calendar_day_container.innerHTML = "";
+
+        Object.keys(calendarData).forEach((month) => {
+          const monthDiv = document.createElement("div");
+          monthDiv.classList.add("calendar_month");
+          monthDiv.innerHTML = month;
+          calendar_months_container.appendChild(monthDiv);
+        });
+
+        Object.keys(calendarData).forEach((month) => {
+          // Days Container
+          const dayContainer = document.createElement("div");
+          dayContainer.classList.add("day_container");
+
+          let dayCell = document.createElement("div");
+          dayCell.classList.add("day_cell");
+          dayCell.textContent = new Date(
+            calendarData[month].firstDay
+          ).toLocaleDateString("en-US", {
+            weekday: "short",
+          });
+          dayContainer.appendChild(dayCell);
+
+          // Dates Container
+          const dateContainer = document.createElement("div");
+          dateContainer.classList.add("date_container");
+          let dateCell = document.createElement("div");
+          dateCell.classList.add("date_cell");
+          dateCell.textContent = new Date(
+            calendarData[month].firstDay
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+          });
+
+          dateContainer.appendChild(dateCell);
+
+          calendarData[month].sundays.forEach((sunday) => {
+            let dayCell = document.createElement("div");
+            dayCell.classList.add("day_cell");
+            if (sunday === "EXTRA_DAY") {
+              dayCell.textContent = "";
+            } else {
+              dayCell.textContent = new Date(sunday).toLocaleDateString(
+                "en-US",
+                {
+                  weekday: "short",
+                }
+              );
+            }
+            dayContainer.appendChild(dayCell);
+
+            let dateCell = document.createElement("div");
+            dateCell.classList.add("date_cell");
+            if (sunday === "EXTRA_DAY") {
+              dateCell.dataset.day = "EXTRA_DAY";
+              dateCell.textContent = "";
+            } else {
+              dateCell.textContent = new Date(sunday).toLocaleDateString(
+                "en-US",
+                {
+                  day: "numeric",
+                }
+              );
+            }
+
+            dateContainer.appendChild(dateCell);
+          });
+
+          calendar_dates_container.appendChild(dateContainer);
+          calendar_day_container.appendChild(dayContainer);
+        });
+      }
+
+      function appendCalendarEvents(events, calendarData) {
+        const eventsList = document.getElementById("eventsList");
+        eventsList.innerHTML = "";
+        events.forEach((event) => {
+          const eventRow = document.createElement("div");
+          eventRow.classList.add("calendar_single_event");
+
+          // Create calendar right section
+          const calendarRightDiv = document.createElement("div");
+          calendarRightDiv.className = "calendar_month_week calendar_right";
+
+          // Create event title
+          const titleDiv = document.createElement("div");
+          titleDiv.className = "calendar_event_title calendar_left";
+          const titleSpan = document.createElement("span");
+          titleSpan.textContent = event.name;
+          titleDiv.appendChild(titleSpan);
+
+          const datesContainer = document.createElement("div");
+          datesContainer.className = "calendar_dates_container";
+
+          Object.keys(calendarData).forEach((month) => {
+            // Dates Container
+            const dateContainer = document.createElement("div");
+            dateContainer.classList.add("date_container");
+
+            // Add first day of the month
+            let dateCell = document.createElement("div");
+            dateCell.classList.add("date_cell");
+            const firstDay = new Date(calendarData[month].firstDay);
+            dateCell.textContent = "00"  ?? firstDay.getDate();
+
+            // Check if the first day is within the event's date range
+            const isFirstDayInRange = isDateInRange(firstDay, event.dateRanges);
+            if (!isFirstDayInRange) {
+              dateCell.style.visibility = "hidden";
+            }
+
+            dateContainer.appendChild(dateCell);
+
+            // Add Sundays
+            calendarData[month].sundays.forEach((sunday) => {
+              let dateCell = document.createElement("div");
+              dateCell.classList.add("date_cell");
+
+              if (sunday === "EXTRA_DAY") {
+                dateCell.dataset.day = "EXTRA_DAY";
+                dateCell.textContent = "";
+              } else {
+                const sundayDate = new Date(sunday);
+                dateCell.textContent = "00" ?? sundayDate.getDate();
+
+                // Check if the Sunday is within the event's date range
+                const isSundayInRange = isDateInRange(
+                  sundayDate,
+                  event.dateRanges
+                );
+                if (!isSundayInRange) {
+                  dateCell.style.visibility = "hidden";
+                }
+              }
+
+              dateContainer.appendChild(dateCell);
+            });
+
+            datesContainer.appendChild(dateContainer);
+          });
+
+          calendarRightDiv.appendChild(datesContainer);
+
+          eventRow.appendChild(titleDiv);
+          eventRow.appendChild(calendarRightDiv);
+
+          // Append the event row to the events list
+          eventsList.appendChild(eventRow);
+        });
+      }
+
+      // Helper function to check if a date is within any of the event's date ranges
+      function isDateInRange(date, dateRanges) {
+        return dateRanges.some((range) => {
+          const startDate = new Date(range.startDate);
+          const endDate = new Date(range.endDate);
+          return date >= startDate && date <= endDate;
+        });
+      }
+
+      function updateCalendarView() {
+        let events = JSON.parse(localStorage.getItem("events")) || [];
+        let dateRanges = events.map((event) => event.dateRanges).flat();
+
+        let { startYear, startMonth, endYear, endMonth } =
+          findDateRange(dateRanges);
+
+        let calendar = generateMonthCalendar(
+          startYear,
+          startMonth - 1,
+          endYear,
+          endMonth - 1
+        );
+        console.log(calendar);
+
+        appendCalendarMonths(calendar);
+        appendCalendarEvents(events, calendar);
+      }
+
+      updateCalendarView();
+    </script>
+
+    <script>
+      let events = JSON.parse(localStorage.getItem("events")) || [];
+
+      document.getElementById("eventForm").addEventListener("submit", addEvent);
+      document
+        .getElementById("addDateRange")
+        .addEventListener("click", addDateRangeInputs);
+
+      function addDateRangeInputs() {
+        const dateRangeHtml = `
+                <div class="date-range">
+                    <input type="date" name="startDate" required>
+                    <input type="date" name="endDate" required>
+                </div>
+            `;
+        document
+          .getElementById("dateRanges")
+          .insertAdjacentHTML("beforeend", dateRangeHtml);
+      }
+
+      function addEvent(e) {
+        e.preventDefault();
+        const name = document.getElementById("eventName").value;
+        const dateRanges = [];
+        const startDates = document.querySelectorAll('input[name="startDate"]');
+        const endDates = document.querySelectorAll('input[name="endDate"]');
+
+        for (let i = 0; i < startDates.length; i++) {
+          dateRanges.push({
+            startDate: startDates[i].value,
+            endDate: endDates[i].value,
+          });
+        }
+
+        const event = { name, dateRanges };
+        events.push(event);
+        localStorage.setItem("events", JSON.stringify(events));
+        e.target.reset();
+        document.getElementById("dateRanges").innerHTML = `
+                <div class="date-range">
+                    <input type="date" name="startDate" required>
+                    <input type="date" name="endDate" required>
+                </div>
+            `;
+        // updateEventsList();
+        // updateCalendar();
+
+        updateCalendarView();
+      }
+
+      // function updateEventsList() {
+      //     const eventsList = document.getElementById('eventsList');
+      //     eventsList.innerHTML = '';
+      //     events.forEach((event, index) => {
+      //         const li = document.createElement('li');
+
+      //         li.textContent = `${event.name}: ${event.dateRanges.map(range =>
+      //             `${range.startDate} to ${range.endDate}`).join(', ')}`;
+      //         eventsList.appendChild(li);
+
+      //     });
+      // }
+
+      function updateEventsList() {
+        const eventsList = document.getElementById("eventsList");
+        eventsList.innerHTML = "";
+        events.forEach((event, index) => {
+          const li = document.createElement("div");
+          li.innerHTML =
+            "<div class='calendar_single_event'><div class='calendar_event_detail calendar_left'><h3>" +
+            event.name +
+            "</h3></div><div class='calendar_data_fild calendar_right'><div class='container'><div class='date_box'><div>" +
+            event.dateRanges.map((range) => range.startDate) +
+            "</div><div>" +
+            event.dateRanges.map((range) => range.endDate) +
+            "</div></div><div class='box'>EST</div><div class='box'>9:00 PM</div><div class='box'>10:00 PM</div><div class='add-button'>+</div></div></div></div>";
+
+          eventsList.appendChild(li);
+        });
+      }
+
+      function updateCalendar() {
+        const calendar = document.getElementById("calendar");
+        calendar.innerHTML = "";
+
+        if (events.length === 0) return;
+
+        const allDates = events.flatMap((event) =>
+          event.dateRanges.flatMap((range) => [
+            new Date(range.startDate),
+            new Date(range.endDate),
+          ])
+        );
+        const minDate = new Date(Math.min(...allDates));
+        const maxDate = new Date(Math.max(...allDates));
+
+        const weekStart = new Date(minDate);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+        const weekEnd = new Date(maxDate);
+        weekEnd.setDate(weekEnd.getDate() + (6 - weekEnd.getDay()));
+
+        for (
+          let d = new Date(weekStart);
+          d <= weekEnd;
+          d.setDate(d.getDate() + 1)
+        ) {
+          const dayCell = document.createElement("div");
+          dayCell.className = "day-cell";
+          dayCell.textContent = d.toISOString().split("T")[0];
+          calendar.appendChild(dayCell);
+        }
+
+        events.forEach((event) => {
+          event.dateRanges.forEach((range) => {
+            const start = new Date(range.startDate);
+            const end = new Date(range.endDate);
+            const dayWidth = 100; // width of each day cell
+            const left =
+              ((start - weekStart) / (1000 * 60 * 60 * 24)) * dayWidth;
+            const width =
+              ((end - start) / (1000 * 60 * 60 * 24)) * dayWidth + dayWidth;
+
+            const eventBar = document.createElement("div");
+            eventBar.className = "event-bar";
+            eventBar.style.left = `${left}px`;
+            eventBar.style.width = `${width}px`;
+            eventBar.style.top = `${Math.random() * 50}px`; // Random vertical position
+            eventBar.title = event.name;
+
+            eventBar.addEventListener("mouseover", (e) => {
+              const tooltip = document.createElement("div");
+              tooltip.className = "tooltip";
+              tooltip.textContent = event.name;
+              tooltip.style.left = `${e.pageX}px`;
+              tooltip.style.top = `${e.pageY}px`;
+              document.body.appendChild(tooltip);
+            });
+
+            eventBar.addEventListener("mouseout", () => {
+              document.querySelector(".tooltip").remove();
+            });
+
+            calendar.appendChild(eventBar);
+          });
+        });
+      }
+
+      window.addEventListener("load", () => {
+        events = JSON.parse(localStorage.getItem("events")) || [];
+        // updateEventsList();
+        // updateCalendar();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+2025-04-10 02:20:28 info: ::1 - - [09/Apr/2025:21:20:28 +0000] "GET / HTTP/1.1" 302 35 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:20:28 info: ::1 - - [09/Apr/2025:21:20:28 +0000] "GET /event HTTP/1.1" 200 101052 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:20:29 info: ::1 - - [09/Apr/2025:21:20:29 +0000] "GET /favicon.ico HTTP/1.1" 404 150 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:22:10 error: Unknown column 'user_type' in 'field list'
+2025-04-10 02:22:10 info: ::1 - - [09/Apr/2025:21:22:10 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:22:20 error: Unknown column 'user_type' in 'field list'
+2025-04-10 02:22:20 info: ::1 - - [09/Apr/2025:21:22:20 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:29:35 error: Unknown column 'parent_id' in 'field list'
+2025-04-10 02:29:35 info: ::1 - - [09/Apr/2025:21:29:35 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:29:51 error: Field 'id' doesn't have a default value
+2025-04-10 02:29:51 info: ::1 - - [09/Apr/2025:21:29:51 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:30:41 error: Unknown column 'user_type' in 'field list'
+2025-04-10 02:30:41 info: ::1 - - [09/Apr/2025:21:30:41 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:30:45 error: Unknown column 'user_type' in 'field list'
+2025-04-10 02:30:45 info: ::1 - - [09/Apr/2025:21:30:45 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:31:05 error: Unknown column 'parent_id' in 'field list'
+2025-04-10 02:31:05 info: ::1 - - [09/Apr/2025:21:31:05 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:31:19 error: Field 'id' doesn't have a default value
+2025-04-10 02:31:19 info: ::1 - - [09/Apr/2025:21:31:19 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:32:27 error: Unknown column 'user_type' in 'field list'
+2025-04-10 02:32:27 info: ::1 - - [09/Apr/2025:21:32:27 +0000] "POST /event HTTP/1.1" 500 51 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:42:59 info: ::1 - - [09/Apr/2025:21:42:59 +0000] "GET /event-invitation HTTP/1.1" 404 155 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:43:20 info: ::1 - - [09/Apr/2025:21:43:20 +0000] "GET /event-confirmation HTTP/1.1" 404 157 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+2025-04-10 02:43:49 info: ::1 - - [09/Apr/2025:21:43:49 +0000] "GET /chat HTTP/1.1" 404 143 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"

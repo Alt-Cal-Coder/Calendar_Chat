@@ -1,0 +1,120 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/.f347829aa600a4441675c7874082b4c44d82bcc6-audit.json",
+    "files": [
+        {
+            "date": 1741882349509,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-03-13.log",
+            "hash": "35410401c911c5477bd9156123154dbec53f45e3513a6dbc374a1582e69fb91a"
+        },
+        {
+            "date": 1742042349305,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-03-15.log",
+            "hash": "6f1661d226376df58959da976cb6586d15dc8f385390d4261e309d0c39d0c1a3"
+        },
+        {
+            "date": 1742127540036,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-03-16.log",
+            "hash": "2878c7e9fbc42c551cb8a3ba2e3168a8124978e5ccc6a183eed748a5bbe09d36"
+        },
+        {
+            "date": 1744233608426,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-04-10.log",
+            "hash": "3cc74f7d38857ae0138edde6f4d91768f90397c5bc454b9edfd990d51b589c88"
+        },
+        {
+            "date": 1744470994391,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-04-12.log",
+            "hash": "48005effae38c866e5b52dc5008ea9bbb30f329e64edbda3e5fa94ea21b51a55"
+        },
+        {
+            "date": 1745225481971,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-04-21.log",
+            "hash": "4a40b96c450e33fa44379b1d2234efcfc3b5c1e5429e4194cb1e94115112f701"
+        },
+        {
+            "date": 1745497934713,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-04-24.log",
+            "hash": "76dc8660bec3351193e5a91212d5c5ff53dee390b6d5f4ed89b243b24d00169e"
+        },
+        {
+            "date": 1745522885294,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-04-25.log",
+            "hash": "3f5294b2a67013644d8ac47baf675c021a15533ca17b46c9c556cce5ef768a0e"
+        },
+        {
+            "date": 1745919833348,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-04-29.log",
+            "hash": "6e8eeb777c53d2ed7c3e61480814776847ac9e15d1d4bc2ded664b94a4dc14db"
+        },
+        {
+            "date": 1746007255011,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-04-30.log",
+            "hash": "3cfe7d524c8323c1ad3854c054bc0b5b5aedb1ebaa874ad04f6bb722b6faa077"
+        },
+        {
+            "date": 1746040345421,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-01.log",
+            "hash": "df805d027119e13bddb6632b8195e9f7b9e1673eb9ad5562294abc4ed948de8e"
+        },
+        {
+            "date": 1746698614694,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-08.log",
+            "hash": "2fc2c18dfb6b3d9b3dfdaf49c47a32c0e8dfc19f1bf68a965260db38a27aaed3"
+        },
+        {
+            "date": 1746803825288,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-09.log",
+            "hash": "5e5ca2475cf6de2099e2fa51404d64f2c3fb7ca09a2106f9e46b3e92857d70d8"
+        },
+        {
+            "date": 1747655083465,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-19.log",
+            "hash": "3bd3d6764e052afa1b71588db0e9f3fcd824705eba5a16c8b22c898936a1c9bc"
+        },
+        {
+            "date": 1747822389046,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-21.log",
+            "hash": "c35313598eb990400d18f6ced7f0bc284da6e81bae3900d1473795ebc40cd5e3"
+        },
+        {
+            "date": 1747906821161,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-22.log",
+            "hash": "e000409d5b220ddf7f76646649424c08cdc1955de92646025698df29fc99cf47"
+        },
+        {
+            "date": 1747944705865,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-23.log",
+            "hash": "ab6fa2a2a4358d242f526c1b5ae5fe101db7e3bc957739463189469ec9be3aa7"
+        },
+        {
+            "date": 1748030942363,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-24.log",
+            "hash": "e7a6e476c9d9df6b41e1e18cd5c9eedfb32065bb9ef0a7df3bdb58fc51deee54"
+        },
+        {
+            "date": 1748263851988,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-26.log",
+            "hash": "cd52a96d6f6fb915ce6b93b2998b36e81404854dd1facec3fae7f430a6f27c18"
+        },
+        {
+            "date": 1748336218291,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-27.log",
+            "hash": "71419d75217ba231bc1bfa24e90a91f0e69cdd8cec6fcc3f8970dcaaa37e91cd"
+        },
+        {
+            "date": 1748463710673,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-05-29.log",
+            "hash": "457f2f5349411f670c5d0b7113914ed031069e97384520106d536d5a4a246476"
+        },
+        {
+            "date": 1750415730230,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/src/logs/debug/2025-06-20.log",
+            "hash": "970fd1ac55a416bd26f66eaca389c9c9c5d42dfcd146f9ce1812272fae01ab22"
+        }
+    ],
+    "hashType": "sha256"
+}

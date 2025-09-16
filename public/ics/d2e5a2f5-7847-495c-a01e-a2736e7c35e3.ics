@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:d2e5a2f5-7847-495c-a01e-a2736e7c35e3-0
+DTSTART:20260805T1200Z
+DTEND:20260805T1200Z
+DTSTAMP:20250620T113309Z
+SUMMARY:10x Podcast
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:Neurodek 1
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@neurodek.com";CN="Tahir Amjad":mailto:tahir@neurodek.com
+ORGANIZER;CN="10x Podcast":MAILTO:tahir@neurodek.com
+LAST-MODIFIED:20250620T113309Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:d2e5a2f5-7847-495c-a01e-a2736e7c35e3
+X-WR-CALNAME:Neurodek
+X-CREATOR-ID:4
+END:VEVENT
+
+BEGIN:VEVENT
+UID:d2e5a2f5-7847-495c-a01e-a2736e7c35e3-1
+
+
+DTSTAMP:20250620T113309Z
+SUMMARY:10x Podcast
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@neurodek.com";CN="Tahir Amjad":mailto:tahir@neurodek.com
+ORGANIZER;CN="10x Podcast":MAILTO:tahir@neurodek.com
+LAST-MODIFIED:20250620T113309Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:d2e5a2f5-7847-495c-a01e-a2736e7c35e3
+X-WR-CALNAME:Neurodek
+X-CREATOR-ID:4
+END:VEVENT
+
+
+X-EXTRA:[{"message":"10X growth Podcast"},{"location":"Lahore, Punjab, Pakistan"},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"main\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@neurodek.com\",\"mobile\":\"\",\"isEmailChecked\":false,\"isMobileChecked\":false}]"},{"contact_group_id":"3"},{"city":"Lahore"},{"state":"Punjab"},{"country":"Pakistan"},{"room":""},{"place":""}]
+END:VCALENDAR

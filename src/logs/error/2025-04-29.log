@@ -1,0 +1,13 @@
+2025-04-29 14:43:53 error: uncaughtException: connect ECONNREFUSED 127.0.0.1:3306
+Error: connect ECONNREFUSED 127.0.0.1:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16)
+2025-04-29 14:44:09 error: uncaughtException: connect ECONNREFUSED 127.0.0.1:3306
+Error: connect ECONNREFUSED 127.0.0.1:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16)
+2025-04-29 17:07:28 error: classes is not defined
+2025-04-29 17:07:55 error: classes is not defined
+2025-04-29 17:27:15 error: Unknown column 'NaN' in 'field list'
+2025-04-29 17:29:28 error: Cannot read properties of undefined (reading 'split')
+2025-04-29 17:30:47 error: Cannot read properties of undefined (reading 'split')
+2025-04-29 17:33:59 error: Cannot read properties of undefined (reading 'split')
+2025-04-29 18:15:36 error: Cannot read properties of undefined (reading 'email')

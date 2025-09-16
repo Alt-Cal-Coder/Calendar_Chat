@@ -1,0 +1,612 @@
+
+<div class="all-events">
+  <h2>All Events</h2>
+  <!-- Toast notification container -->
+  <div id="toast-container"></div>
+  
+  <!-- Date filter section -->
+  <div class="date-filter-container">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="dateFilter">Filter by Date:</label>
+        <input type="text" id="dateFilter" class="date-input" placeholder="Select date">
+      </div>
+      <button id="clearDateFilter" class="clear-filter-btn">Clear Filter</button>
+      <a href="/chat/events-calendar/{{creatorId}}" class="calendar-view-btn">Calendar View</a>
+    </div>
+  </div>
+  
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th class="sticky-column first-column">#</th>
+          <th class="sticky-column second-column">Event Name</th>
+          <th>Unique Event ID</th>
+          <th>Created At</th>
+          <th class="text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody id="eventsTableBody">
+        {{#each events}}
+        <tr data-created-at="{{created_at}}">
+          <td class="sticky-column first-column">{{@index}}</td>
+          <td class="sticky-column second-column">{{title}}</td>
+          <td>
+            <div class="id-container">
+              <span class="truncated-id" title="{{uniqueEventId}}">{{truncateText uniqueEventId 8}}...</span>
+              <button class="copy-btn" data-id="{{uniqueEventId}}" title="Copy ID">
+                <i class="bi bi-clipboard"></i>
+              </button>
+            </div>
+          </td>
+          <td>{{created_at}}</td>
+          <td class="text-center">
+            <a href="/chat/{{uniqueEventId}}/{{creatorId}}">
+              <button class="message-btn">Message <i class="bi bi-chat-dots-fill"></i></button>
+            </a>
+            <a href="/event/edit/{{uniqueEventId}}">
+              <button class="action-btn">Edit</button>
+            </a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check if flatpickr is available
+    if (typeof flatpickr === 'undefined') {
+      console.error('Flatpickr is not loaded. Please check your script includes.');
+      // Add a fallback date input
+      const dateInput = document.getElementById('dateFilter');
+      dateInput.type = 'date';
+      return;
+    }
+    
+    console.log('Flatpickr is available, initializing date picker...');
+    
+    // Initialize flatpickr for date selection
+    const dateFilter = flatpickr("#dateFilter", {
+      dateFormat: "d-m-y", // This should match the format in the data-created-at attribute (DD-MM-YY)
+      allowInput: true,
+      onChange: function(selectedDates, dateStr) {
+        if (!selectedDates[0]) return;
+        
+        console.log("Selected date from flatpickr:", dateStr); // Debug log
+        
+        // Format the date to match exactly the data-created-at format (DD-MM-YY)
+        const day = String(selectedDates[0].getDate()).padStart(2, '0');
+        const month = String(selectedDates[0].getMonth() + 1).padStart(2, '0');
+        const year = String(selectedDates[0].getFullYear()).slice(-2);
+        const formattedDate = `${day}-${month}-${year}`;
+        
+        console.log("Formatted date for filtering:", formattedDate); // Debug log
+        
+        filterEventsByDate(formattedDate);
+      }
+    });
+
+    // Helper function to format date consistently
+    function formatDate(date) {
+      if (!date) return '';
+      
+      // Format as DD-MM-YY to match the data-created-at attribute
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      
+      return `${day}-${month}-${year}`;
+    }
+    
+    // Function to filter events by date
+    function filterEventsByDate(formattedDateStr) {
+      if (!formattedDateStr) return;
+      
+      console.log("Filtering by formatted date:", formattedDateStr); // Debug log
+      
+      const rows = document.querySelectorAll('#eventsTableBody tr');
+      let hasVisibleRows = false;
+      
+      rows.forEach(row => {
+        const createdAt = row.getAttribute('data-created-at');
+        console.log("Row date attribute:", createdAt); // Debug log
+        
+        // Try different ways to match the date
+        const rowDate = createdAt.split(' ')[0]; // DD-MM-YY
+        const isMatch = datesMatch(rowDate, formattedDateStr);
+        
+        console.log("Row date:", rowDate, "Selected date:", formattedDateStr, "Match:", isMatch); // Debug log
+        
+        if (isMatch) {
+          row.style.display = '';
+          hasVisibleRows = true;
+          console.log("Match found, showing row"); // Debug log
+        } else {
+          row.style.display = 'none';
+          console.log("No match, hiding row"); // Debug log
+        }
+      });
+      
+      // Show message if no events found for the selected date
+      if (!hasVisibleRows) {
+        showToast(`No events found for ${formattedDateStr}`, 'error');
+      } else {
+        showToast(`Showing events for ${formattedDateStr}`, 'success');
+      }
+    }
+
+    // Helper function to compare dates in different formats
+    function datesMatch(date1, date2) {
+      // Direct string comparison
+      if (date1 === date2) return true;
+      
+      // Try to parse both dates and compare
+      try {
+        // Parse DD-MM-YY format
+        const parts1 = date1.split('-');
+        const parts2 = date2.split('-');
+        
+        if (parts1.length === 3 && parts2.length === 3) {
+          // Compare day, month, and year
+          return parts1[0] === parts2[0] && // Day
+                 parts1[1] === parts2[1] && // Month
+                 parts1[2] === parts2[2];   // Year
+        }
+      } catch (e) {
+        console.error("Error comparing dates:", e);
+      }
+      
+      return false;
+    }
+    
+    // Clear date filter
+    document.getElementById('clearDateFilter').addEventListener('click', function() {
+      console.log("Clearing date filter"); // Debug log
+      dateFilter.clear();
+      const rows = document.querySelectorAll('#eventsTableBody tr');
+      console.log("Number of rows to show:", rows.length); // Debug log
+      rows.forEach(row => {
+        row.style.display = '';
+        console.log("Showing row:", row.querySelector('.second-column').textContent); // Debug log
+      });
+      showToast('Date filter cleared', 'success');
+    });
+    
+    // Add copy functionality for event IDs
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    
+    copyButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const idToCopy = this.getAttribute('data-id');
+        navigator.clipboard.writeText(idToCopy)
+          .then(() => {
+            // Show feedback that the ID was copied
+            const originalIcon = this.innerHTML;
+            this.innerHTML = '<i class="bi bi-check"></i>';
+            this.classList.add('copied');
+            
+            // Show toast notification
+            showToast(`ID copied to clipboard: ${idToCopy.substring(0, 8)}...`);
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+              this.innerHTML = originalIcon;
+              this.classList.remove('copied');
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Failed to copy text: ', err);
+            showToast('Failed to copy to clipboard', 'error');
+          });
+      });
+    });
+    
+    // Toast notification function
+    function showToast(message, type = 'success') {
+      const toastContainer = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <div class="toast-content">
+          <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'}"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      toastContainer.appendChild(toast);
+      
+      // Trigger animation
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+      
+      // Remove toast after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          toast.remove();
+        }, 300); // Wait for fade out animation
+      }, 3000);
+    }
+  });
+</script>
+
+<script>
+  // Add tooltip functionality for truncated IDs
+  document.addEventListener('DOMContentLoaded', function() {
+    const truncatedIds = document.querySelectorAll('.truncated-id');
+    
+    truncatedIds.forEach(element => {
+      element.addEventListener('mouseenter', function(e) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'id-tooltip';
+        tooltip.textContent = this.getAttribute('title');
+        
+        // Position the tooltip
+        tooltip.style.left = `${e.pageX + 10}px`;
+        tooltip.style.top = `${e.pageY + 10}px`;
+        
+        document.body.appendChild(tooltip);
+      });
+      
+      element.addEventListener('mouseleave', function() {
+        const tooltip = document.querySelector('.id-tooltip');
+        if (tooltip) {
+          tooltip.remove();
+        }
+      });
+      
+      // Update tooltip position on mouse move
+      element.addEventListener('mousemove', function(e) {
+        const tooltip = document.querySelector('.id-tooltip');
+        if (tooltip) {
+          tooltip.style.left = `${e.pageX + 10}px`;
+          tooltip.style.top = `${e.pageY + 10}px`;
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  a {
+    text-decoration: none;
+  }
+
+  .all-events {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 80px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .all-events h2 {
+    margin-bottom: 20px;
+  }
+  
+  /* Date filter styles */
+  .date-filter-container {
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .filter-group label {
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .date-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 200px;
+  }
+  
+  .clear-filter-btn {
+    padding: 8px 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .clear-filter-btn:hover {
+    background-color: #e9ecef;
+  }
+
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 0 15px;
+  }
+  
+  .all-events table {
+    width: 100%;
+    min-width: 600px;
+    background-color: white;
+    color: black;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .all-events table th,
+  .all-events table td {
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  
+  .all-events table th {
+    background-color: #f8f9fa;
+    color: black;
+  }
+  
+  /* Sticky columns styling - fixed to match list.hbs */
+  .sticky-column {
+    position: sticky;
+    z-index: 1;
+    background-color: inherit;
+  }
+  
+  .first-column {
+    left: 0;
+    z-index: 3;
+    min-width: 50px;
+    max-width: 70px;
+  }
+  
+  .second-column {
+    left: 51px; /* Width of first column + 1px border */
+    z-index: 2;
+    min-width: 150px;
+    max-width: 200px;
+  }
+  
+  /* Fix for overlapping borders */
+  thead tr th.sticky-column {
+    background-color: #f8f9fa;
+  }
+  
+  tbody tr td.sticky-column {
+    background-color: white;
+  }
+  
+  /* Add shadow effect to indicate scrollable content */
+  .second-column::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -5px;
+    height: 100%;
+    width: 5px;
+    background: linear-gradient(to right, rgba(0,0,0,0.1), rgba(0,0,0,0));
+    pointer-events: none;
+  }
+
+  .all-events table .action-btn, .message-btn {
+    background-color: white;
+    color: black;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    border: 1px solid black;
+    margin: 2px;
+  }
+
+  .all-events table .action-btn:hover, .message-btn:hover {
+    background-color: #f8f9fa;
+    color: black;
+    border: 1px solid black;
+  }
+  
+  /* Tooltip styling */
+  .id-tooltip {
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 1000;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  
+  /* Truncated ID styling */
+  .truncated-id {
+    cursor: pointer;
+  }
+
+  /* Custom scrollbar for better mobile experience */
+  .table-responsive::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  @media (max-width: 768px) {
+    .all-events {
+      padding: 40px 10px;
+    }
+    
+    .all-events table {
+      min-width: 500px;
+    }
+    
+    .all-events table td, .all-events table th {
+      padding: 8px 5px;
+      font-size: 0.9rem;
+    }
+    
+    .message-btn, .action-btn {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+    }
+    
+    .first-column {
+      min-width: 40px;
+      max-width: 60px;
+    }
+    
+    .second-column {
+      left: 41px; /* Width of first column + 1px border */
+      min-width: 120px;
+      max-width: 140px;
+    }
+    
+    /* Truncate text in sticky columns on mobile */
+    .sticky-column {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .filter-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .filter-group {
+      width: 100%;
+    }
+    
+    .date-input {
+      width: 100%;
+    }
+  }
+
+  /* Toast notification styles */
+  #toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+  
+  .toast {
+    background-color: white;
+    color: #333;
+    padding: 12px 20px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    min-width: 250px;
+    max-width: 350px;
+  }
+  
+  .toast.show {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  
+  .toast.success {
+    border-left: 4px solid #28a745;
+  }
+  
+  .toast.error {
+    border-left: 4px solid #dc3545;
+  }
+  
+  .toast-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .toast-content i {
+    font-size: 1.2rem;
+  }
+  
+  .toast.success i {
+    color: #28a745;
+  }
+  
+  .toast.error i {
+    color: #dc3545;
+  }
+  
+  /* Flatpickr customization */
+  .flatpickr-calendar {
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+  }
+  
+  .flatpickr-day.selected {
+    background: #000;
+    border-color: #000;
+  }
+  
+  .flatpickr-day.selected:hover {
+    background: #333;
+    border-color: #333;
+  }
+  
+  .flatpickr-day:hover {
+    background: #f0f0f0;
+  }
+
+  .calendar-view-btn {
+    padding: 8px 15px;
+    background-color: #000;
+    color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .calendar-view-btn:hover {
+    background-color: #333;
+    color: white;
+  }
+</style>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: "Montserrat", sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            color: white;
+            background-color: #000000;
+        }
+
+        .calendar-view {
+            display: flex;
+            height: 100vh;
+             background: linear-gradient(90deg,rgba(237, 237, 237, 1) 0%, rgba(0, 0, 0, 1) 130%);
+        }
+
+        /* Left Container - Calendar */
+        .left-container {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            //background: linear-gradient(to bottom, white, #d8d8d8, #6e6e6e, white);
+            border-right: 1px solid #333;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #000000;
+        }
+
+        .back-button {
+            padding: 8px 15px;
+            background-color: #e1bb53;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Montserrat", sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .calendar-section {
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-divider {
+            height: 1px;
+            background-color: #333;
+            margin: 15px 0;
+        }
+
+        .date-filter-controls {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 10px;
+        }
+
+        .clear-filter {
+            padding: 8px 15px;
+            background-color: #e1bb53;
+            color: #000000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Montserrat", sans-serif;
+            font-size: 0.9rem;
+        }
+
+        /* Right Container - Event List */
+        .right-container {
+            flex: 7;
+            padding: 20px;
+            overflow-y: auto;
+            //background: linear-gradient(to bottom, white, #d8d8d8, #6e6e6e, white);
+            color: #000000; /* Change text color to black for better readability */
+        }
+
+        .date-header {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+               color: #e1bb53; /* Change to black for better contrast */
+            font-weight: bold;
+        }
+
+        .no-events {
+            text-align: center;
+            color: #e1bb53; /* Darker color for better visibility on gradient background */
+            margin-top: 50px;
+            font-size: 1.2rem;
+        }
+
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .event-card {
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .event-date {
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .event-details {
+            margin-bottom: 15px;
+        }
+
+        .event-detail-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .detail-label {
+            width: 120px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: #000000;
+        }
+
+        .last-message {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .sender-message {
+            border-left: 3px solid #e1bb53;
+        }
+
+        .recipient-message {
+            border-left: 3px solid #6e6e6e;
+        }
+
+        .additional-message {
+            margin-top: 10px;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .message-sender {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .message-time {
+            color: #333;
+        }
+
+        .message-content {
+            color: #000000;
+            line-height: 1.4;
+        }
+
+        /* Add a small indicator for different senders */
+        .message-sender::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .sender-message .message-sender::before {
+            background-color: #e1bb53;
+        }
+
+        .recipient-message .message-sender::before {
+            background-color: #6e6e6e;
+        }
+
+        .no-messages-for-event {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .event-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Montserrat", sans-serif;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-button {
+            background-color: #e1bb53;
+            color: #000000;
+        }
+
+        .chat-button {
+            background-color: #333;
+            color: white;
+        }
+
+        /* Flatpickr calendar customization */
+        .flatpickr-calendar {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid #e1bb53 !important;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-family: "Montserrat", sans-serif;
+            width: 100%;
+        }
+
+        .flatpickr-day {
+            border-radius: 5px;
+            color: #000000 !important;
+        }
+
+        .flatpickr-day.selected {
+            background-color: #e1bb53 !important;
+            border-color: #e1bb53 !important;
+            color: #000000 !important;
+        }
+
+        .flatpickr-day.selected:hover {
+            background-color: #c9a746 !important;
+            border-color: #c9a746 !important;
+        }
+
+        .flatpickr-day:hover {
+            background-color: rgba(225, 187, 83, 0.3) !important;
+        }
+
+        .flatpickr-months .flatpickr-month {
+            background-color: #e1bb53 !important;
+            color: #000000 !important;
+        }
+
+        .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background-color: #e1bb53 !important;
+            color: #000000 !important;
+        }
+
+        .flatpickr-weekday {
+            color: #000000 !important;
+            font-weight: bold;
+        }
+
+        .flatpickr-months .flatpickr-prev-month, 
+        .flatpickr-months .flatpickr-next-month {
+            color: #000000 !important;
+            fill: #000000 !important;
+        }
+
+        .flatpickr-months .flatpickr-prev-month:hover, 
+        .flatpickr-months .flatpickr-next-month:hover {
+            color: #333 !important;
+            fill: #333 !important;
+        }
+
+        /* Style for dates with events */
+        .flatpickr-day.has-events {
+            background-color: rgba(225, 187, 83, 0.3);
+            border-color: #e1bb53;
+        }
+
+        .flatpickr-day.has-events:hover {
+            background-color: rgba(225, 187, 83, 0.5);
+        }
+
+        .flatpickr-day.has-events.selected {
+            background-color: #e1bb53;
+            border-color: #e1bb53;
+            color: #000000;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .calendar-view {
+                flex-direction: column;
+            }
+            
+            .left-container {
+                flex: none;
+                border-right: none;
+                border-bottom: 1px solid #333;
+            }
+            
+            .right-container {
+                flex: none;
+            }
+        }
+
+        /* Loader styles */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loader {
+            border: 5px solid #333;
+            border-top: 5px solid #e1bb53;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calendar-view" data-user-id="{{userId}}">
+        <!-- Left Container - Calendar -->
+        <div class="left-container">
+            <div class="header-section">
+                <h1 class="page-title">Event Calendar</h1>
+                <a href="/event/all" class="back-button">Back to Events</a>
+            </div>
+            
+            <!-- Calendar Section -->
+            <div class="calendar-section">
+                <input type="text" id="dateFilter" class="date-input" placeholder="Select date">
+            </div>
+            
+            <!-- Divider -->
+            <div class="section-divider"></div>
+            
+            <!-- Date Filter Controls -->
+            <div class="date-filter-controls">
+                <button id="clearDateFilter" class="clear-filter">Clear Date Filter</button>
+            </div>
+        </div>
+        
+        <!-- Right Container - Event List -->
+        <div class="right-container">
+            <div id="dateHeader" class="date-header">
+                Todays Updates: Messages
+            </div>
+            
+            <div id="eventsList" class="event-list">
+                <div class="no-events">No events to display. Please select a date from the calendar.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add a loader element -->
+    <div id="loader" class="loader-container" style="display: none;">
+        <div class="loader"></div>
+    </div>
+
+    <script>
+        // Use triple braces to avoid HTML escaping of the JSON string
+        let initialEvents = {{{initialEvents}}};
+        
+        // Add debug logging to check what events are loaded
+        console.log("Initial events loaded:", initialEvents);
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // DOM elements
+            const eventsList = document.getElementById("eventsList");
+            const dateHeader = document.getElementById("dateHeader");
+            const dateFilter = document.getElementById("dateFilter");
+            const clearDateFilter = document.getElementById("clearDateFilter");
+            const loader = document.getElementById("loader");
+            
+            // Get data attributes
+            const calendarView = document.querySelector(".calendar-view");
+            const userId = calendarView.dataset.userId;
+            
+            // Set initial title
+            dateHeader.textContent = "Todays Updates: Messages";
+            
+            // Load initial dates with events
+            let datesWithEvents = {};
+            try {
+                datesWithEvents = initialEvents || {};
+                console.log(`Loaded dates with events:`, datesWithEvents);
+            } catch (error) {
+                console.error("Error loading initial dates with events:", error);
+                datesWithEvents = {};
+            }
+
+            // Initialize flatpickr for date selection with inline calendar
+            const fp = flatpickr("#dateFilter", {
+                dateFormat: "Y-m-d",
+                allowInput: true,
+                inline: true,
+                static: true,
+                defaultDate: "today",
+                onDayCreate: function(dObj, dStr, fp, dayElem) {
+                    const dateStr = dayElem.dateObj.toISOString().split('T')[0];
+                    if (datesWithEvents[dateStr]) {
+                        dayElem.classList.add("has-events");
+                        // Optionally add a tooltip showing number of events
+                        dayElem.setAttribute('title', `${datesWithEvents[dateStr]} events`);
+                    }
+                },
+                onChange: function(selectedDates, dateStr) {
+                    if (dateStr) {
+                        console.log("Date selected:", dateStr);
+                        fetchEventsForDate(dateStr);
+                        dateHeader.textContent = `Updates for ${formatDateForDisplay(dateStr)}: Messages`;
+                    } else {
+                        eventsList.innerHTML = '<div class="no-events">No events to display. Please select a date from the calendar.</div>';
+                        dateHeader.textContent = 'Todays Updates: Messages';
+                    }
+                }
+            });
+
+            // Load today's events by default
+            const today = new Date().toISOString().split('T')[0];
+            fetchEventsForDate(today);
+            
+            // Clear date filter
+            clearDateFilter.addEventListener("click", () => {
+                console.log("Clearing date filter");
+                fp.clear();
+                eventsList.innerHTML = '<div class="no-events">No events to display. Please select a date from the calendar.</div>';
+                dateHeader.textContent = 'Todays Updates: Messages';
+            });
+
+            // Format date for display
+            function formatDateForDisplay(dateStr) {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+
+            // Format message content
+            function formatMessage(message) {
+                if (!message) return "No message content";
+                
+                try {
+                    console.log("Message to format:", message); // Debug log
+                    
+                    // If message is already an object with content property
+                    if (message.content) {
+                        return message.content;
+                    }
+                    
+                    // If message is a string that might be JSON
+                    if (typeof message === 'string') {
+                        try {
+                            const parsed = JSON.parse(message);
+                            return parsed.content || message;
+                        } catch (e) {
+                            // If it's not valid JSON, return the string itself
+                            return message;
+                        }
+                    }
+                    
+                    // If message is an object but doesn't have content property
+                    if (typeof message === 'object') {
+                        // Try to find any text content in the object
+                        const possibleContentKeys = ['text', 'body', 'message', 'value', 'data'];
+                        for (const key of possibleContentKeys) {
+                            if (message[key] && typeof message[key] === 'string') {
+                                return message[key];
+                            }
+                        }
+                        
+                        // If no text content found, stringify the object
+                        return JSON.stringify(message);
+                    }
+                    
+                    // If all else fails, convert to string
+                    return String(message);
+                } catch (error) {
+                    console.error("Error formatting message:", error);
+                    return "Error displaying message";
+                }
+            }
+
+            // Function to fetch events for a specific date using the API
+            async function fetchEventsForDate(dateStr) {
+                try {
+                    // Show loader
+                    loader.style.display = 'flex';
+                    
+                    // Clear current events
+                    eventsList.innerHTML = '';
+                    
+                    console.log(`Fetching events for date: ${dateStr} and user: ${userId}`);
+                    
+                    // Make API call to get events for this date
+                    const response = await fetch(`/chat/events-by-date/${dateStr}/${userId}`);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API request failed with status ${response.status}: ${errorData.message || 'Unknown error'}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log("API response:", data);
+                    
+                    // Hide loader
+                    loader.style.display = 'none';
+                    
+                    if (!data.success) {
+                        throw new Error(data.message || "Failed to fetch events");
+                    }
+                    
+                    const eventsForDate = data.events || [];
+                    
+                    if (eventsForDate.length === 0) {
+                        eventsList.innerHTML = '<div class="no-events">No events found for this date.</div>';
+                        return;
+                    }
+                    
+                    // Generate HTML for events
+                    let html = '';
+                    
+                    eventsForDate.forEach(event => {
+                        const eventDate = new Date(event.created_at);
+                        
+                        // Get messages from the database
+                        const messages = event.messages || [];
+                        console.log(`Event ${event.title} has ${messages.length} messages`);
+                        
+                        html += `
+                            <div class="event-card">
+                                <div class="event-header">
+                                    <div class="event-title">${event.title || 'Untitled Event'}</div>
+                                    <div class="event-date">${eventDate.toLocaleString()}</div>
+                                </div>
+                                
+                                <div class="event-details">
+                                    <div class="event-detail-row">
+                                        <div class="detail-label">Event ID:</div>
+                                        <div class="detail-value">${event.uniqueEventId || 'N/A'}</div>
+                                    </div>
+                                    <div class="event-detail-row">
+                                        <div class="detail-label">Creator:</div>
+                                        <div class="detail-value">${event.name || "Unknown"}</div>
+                                    </div>
+                                    <div class="event-detail-row">
+                                        <div class="detail-label">Email:</div>
+                                        <div class="detail-value">${event.email || "N/A"}</div>
+                                    </div>
+                                </div>`;
+                        
+                        // Only show the messages section if there are messages
+                        if (messages && messages.length > 0) {
+                            // Get the last message
+                            const lastMessage = messages[0]; // Messages are ordered by created_at DESC
+                            const messageTime = new Date(lastMessage.created_at).toLocaleString();
+                            
+                            // Format the message content for display (replace newlines with <br>)
+                            let messageContent = lastMessage.processedContent || "No message content";
+                            messageContent = messageContent.replace(/\n/g, '<br>');
+                            
+                            const senderName = lastMessage.username || "Unknown";
+                            const isSender = lastMessage.sender == userId;
+                            
+                            html += `
+                                <div class="event-detail-row">
+                                    <div class="detail-label">Last Message:</div>
+                                </div>
+                                <div class="last-message ${isSender ? 'sender-message' : 'recipient-message'}">
+                                    <div class="message-header">
+                                        <div class="message-sender">${senderName}</div>
+                                        <div class="message-time">${messageTime}</div>
+                                    </div>
+                                    <div class="message-content">${messageContent}</div>
+                                </div>`;
+                        } else {
+                            html += `
+                                <div class="no-messages-for-event">No messages for this event yet.</div>`;
+                        }
+                        
+                        html += `
+                                <div class="event-actions">
+                                    <a href="/event/edit/${event.uniqueEventId}" class="action-button view-button">
+                                        Edit Event
+                                    </a>
+                                    <a href="/chat/${event.uniqueEventId}/${userId}" class="action-button chat-button">
+                                        View Chat
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    eventsList.innerHTML = html;
+                    
+                } catch (error) {
+                    console.error("Error fetching events:", error);
+                    loader.style.display = 'none';
+                    eventsList.innerHTML = `<div class="no-events">Error loading events: ${error.message}</div>`;
+                }
+            }
+
+            // Function to group events by date
+            function groupEventsByDate(events) {
+                return events.reduce((groups, event) => {
+                    const date = new Date(event.created_at);
+                    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                    
+                    if (!groups[dateStr]) {
+                        groups[dateStr] = [];
+                    }
+                    
+                    groups[dateStr].push(event);
+                    return groups;
+                }, {});
+            }
+            
+            // Function to highlight dates with events in the calendar
+            function highlightDatesWithEvents(eventsByDate) {
+                // Get all dates that have events
+                const datesWithEvents = Object.keys(eventsByDate);
+                console.log("Dates with events:", datesWithEvents);
+                
+                // Add a custom class to dates with events
+                if (fp && fp.config) {
+                    fp.config.onDayCreate = function(dObj, dStr, fp, dayElem) {
+                        const dateStr = dayElem.dateObj.toISOString().split('T')[0];
+                        if (datesWithEvents.includes(dateStr)) {
+                            dayElem.classList.add("has-events");
+                        }
+                    };
+                    
+                    // Redraw the calendar to apply the changes
+                    fp.redraw();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

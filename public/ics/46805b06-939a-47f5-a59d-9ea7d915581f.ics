@@ -1,0 +1,54 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:46805b06-939a-47f5-a59d-9ea7d915581f-0
+DTSTART:20250521T1200Z
+DTEND:20250521T1300Z
+DTSTAMP:20250521T114023Z
+SUMMARY:Tahir Amjad
+LOCATION:, , , , , , , 
+DESCRIPTION:KodX-3
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahiramjad79@gmail.com";CN="MUHAMMAD TAHIR":mailto:tahiramjad79@gmail.com
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir123@gmail.com";CN="Tahir 321":mailto:tahir123@gmail.com
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir123@kodxsystem.com";CN="Tahir 123":mailto:tahir123@kodxsystem.com
+ORGANIZER;CN="Tahir Amjad":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250521T114023Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:46805b06-939a-47f5-a59d-9ea7d915581f
+X-WR-CALNAME:Tahir Group
+X-CREATOR-ID:1
+END:VEVENT
+
+BEGIN:VEVENT
+UID:46805b06-939a-47f5-a59d-9ea7d915581f-1
+
+
+DTSTAMP:20250521T114023Z
+SUMMARY:Tahir Amjad
+LOCATION:, , , , , , , 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahiramjad79@gmail.com";CN="MUHAMMAD TAHIR":mailto:tahiramjad79@gmail.com
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir123@gmail.com";CN="Tahir 321":mailto:tahir123@gmail.com
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir123@kodxsystem.com";CN="Tahir 123":mailto:tahir123@kodxsystem.com
+ORGANIZER;CN="Tahir Amjad":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250521T114023Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:46805b06-939a-47f5-a59d-9ea7d915581f
+X-WR-CALNAME:Tahir Group
+X-CREATOR-ID:1
+END:VEVENT
+
+
+X-EXTRA:[{"message":"This is an Event with Multiple "},{"location":""},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"main\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@kodxsystem.com\",\"mobile\":\"07378492257\",\"isEmailChecked\":false,\"isMobileChecked\":false},{\"indexKey\":\"1\",\"user_type\":\"main\",\"name\":\"MUHAMMAD TAHIR\",\"email\":\"tahiramjad79@gmail.com\",\"mobile\":\"03224512868\",\"isEmailChecked\":false,\"isMobileChecked\":false},{\"indexKey\":\"2\",\"user_type\":\"main\",\"name\":\"Tahir 321\",\"email\":\"tahir123@gmail.com\",\"mobile\":\"03224512869\",\"isEmailChecked\":false,\"isMobileChecked\":false},{\"indexKey\":\"3\",\"user_type\":\"main\",\"name\":\"Tahir 123\",\"email\":\"tahir123@kodxsystem.com\",\"mobile\":\"07378492258\",\"isEmailChecked\":false,\"isMobileChecked\":false}]"},{"contact_group_id":"1"},{"isPaid":"true"}]
+END:VCALENDAR

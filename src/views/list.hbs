@@ -1,0 +1,126 @@
+<div class="container my-5">
+  <h1 class="mb-4 text-center">{{title}}</h1>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th class="sticky-column first-column">#</th>
+          <th class="sticky-column second-column">Event Title</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>View</th>
+          <th>Attendees</th>
+          <th>Download Invite</th>
+          <th>Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if events.length}}
+        {{#each events}}
+        <tr>
+          <td class="sticky-column first-column">{{id}}</td>
+          <td class="sticky-column second-column">{{title}}</td>
+          <td>11-10-2024</td>
+          <td>12-10-2024</td>
+          <td>0</td>
+          <td>0</td>
+          <td class="attachment"><a href="http://localhost:3002/ics/{{uniqueEventId}}.ics" download>Download</a></td>
+          <td>0</td>
+        </tr>
+        {{/each}}
+        {{else}}
+        <tr>
+          <td colspan="8" class="text-center">No events yet</td>
+        </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .table {
+    min-width: 800px;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: #212529;
+    background-color: white;
+  }
+  
+  .table th, .table td {
+    white-space: nowrap;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+  }
+  
+  .attachment a {
+    color: #0d6efd;
+    text-decoration: underline;
+  }
+  
+  /* Sticky columns styling */
+  .sticky-column {
+    position: sticky;
+    z-index: 1;
+  }
+  
+  .first-column {
+    left: 0;
+    z-index: 3;
+  }
+  
+  .second-column {
+    left: 43px; /* Adjust based on the width of the first column */
+    z-index: 2;
+  }
+  
+  /* Fix for overlapping borders */
+  thead tr th.sticky-column {
+    background-color: #f8f9fa;
+  }
+  
+  tbody tr:nth-child(odd) td.sticky-column {
+    background-color: white;
+  }
+  
+  tbody tr:nth-child(even) td.sticky-column {
+    background-color: #f2f2f2; /* Match Bootstrap's striped table */
+  }
+  
+  /* Add shadow effect to indicate scrollable content */
+  .second-column::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -5px;
+    height: 100%;
+    width: 5px;
+    background: linear-gradient(to right, rgba(0,0,0,0.1), rgba(0,0,0,0));
+    pointer-events: none;
+  }
+  
+  @media (max-width: 768px) {
+    .table th, .table td {
+      padding: 8px 5px;
+      font-size: 0.9rem;
+    }
+    
+    .container {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    
+    .second-column {
+      left: 35px; /* Adjust for smaller screens */
+    }
+  }
+</style>

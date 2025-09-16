@@ -1,0 +1,8 @@
+2025-04-25 00:34:40 error: Cannot read properties of undefined (reading 'email')
+2025-04-25 00:40:21 error: Cannot read properties of undefined (reading 'email')
+2025-04-25 01:10:22 error: Cannot read properties of undefined (reading 'split')
+2025-04-25 18:11:19 error: ENOENT: no such file or directory, mkdir '/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/public/uploads/invoices/04-2025'
+2025-04-25 18:11:19 error: Unable to generate PDF
+2025-04-25 18:13:41 error: ENOENT: no such file or directory, mkdir '/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/Event_Dashboard/public/uploads/invoices/04-2025'
+2025-04-25 18:13:41 error: Unable to generate PDF
+2025-04-25 18:36:09 error: Field 'calendar_group' doesn't have a default value

@@ -1,0 +1,50 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:05b86e40-54f2-40a1-9630-f5cadd7869c4-0
+DTSTART:20250519T1200Z
+DTEND:20250519T1200Z
+DTSTAMP:20250519T123228Z
+SUMMARY:This is a test event for Messaging
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:KodX-3
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahiramjad79@gmail.com";CN="Tahir Amjad 2":mailto:tahiramjad79@gmail.com
+ORGANIZER;CN="This is a test event for Messaging":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250519T123228Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:05b86e40-54f2-40a1-9630-f5cadd7869c4
+X-WR-CALNAME:Kod x System
+X-CREATOR-ID:17
+END:VEVENT
+
+BEGIN:VEVENT
+UID:05b86e40-54f2-40a1-9630-f5cadd7869c4-1
+
+
+DTSTAMP:20250519T123228Z
+SUMMARY:This is a test event for Messaging
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahiramjad79@gmail.com";CN="Tahir Amjad 2":mailto:tahiramjad79@gmail.com
+ORGANIZER;CN="This is a test event for Messaging":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250519T123228Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:05b86e40-54f2-40a1-9630-f5cadd7869c4
+X-WR-CALNAME:Kod x System
+X-CREATOR-ID:17
+END:VEVENT
+
+
+X-EXTRA:[{"message":"Test Event For 2 users"},{"location":"Lahore, Punjab, Pakistan"},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"main\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@kodxsystem.com\",\"mobile\":\"07378492257\",\"isEmailChecked\":false,\"isMobileChecked\":false},{\"indexKey\":\"1\",\"user_type\":\"main\",\"name\":\"Tahir Amjad 2\",\"email\":\"tahiramjad79@gmail.com\",\"mobile\":\"03224512868\",\"isEmailChecked\":false,\"isMobileChecked\":false}]"},{"contact_group_id":"7"},{"city":"Lahore"},{"state":"Punjab"},{"country":"Pakistan"},{"room":""},{"place":""}]
+END:VCALENDAR

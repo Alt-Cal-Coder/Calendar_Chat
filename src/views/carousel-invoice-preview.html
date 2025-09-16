@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Preview Carousel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        .carousel-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+        }
+        .carousel-container h1 {
+            margin-top: 50px;
+        }
+        .carousel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .carousel img {
+            width: 300px;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .carousel img:hover {
+            transform: scale(1.05);
+        }
+        .carousel button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .carousel button:hover {
+            background-color: #555;
+        }
+        .carousel button.prev {
+            position: absolute;
+            left: 10px;
+        }
+        .carousel button.next {
+            position: absolute;
+            right: 10px;
+        }
+        .enlarge-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .enlarge-container img {
+            max-width: 80%;
+            height: auto;
+            cursor: pointer;
+        }
+        .close-enlarge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="carousel-container">
+    <h1>Preview Your Invoice</h1>
+    <div class="carousel">
+        <button class="prev" onclick="prevSlide()">&#10094;</button>
+        <img id="carousel-image" src="invoice1.png" alt="Invoice Preview" onclick="enlargeImage()">
+        <button class="next" onclick="nextSlide()">&#10095;</button>
+    </div>
+    <p><a href="#" style="color: #FFD700;">Download Invoice</a></p>
+</div>
+
+<!-- Enlarge Image Modal -->
+<div class="enlarge-container" id="enlarge-container">
+    <span class="close-enlarge" onclick="closeEnlarge()">&#10006;</span>
+    <img id="enlarge-image" src="invoice1.png" alt="Enlarged Invoice">
+</div>
+
+<script>
+    // Carousel Images
+    const images = [
+        'invoice1.png', // Replace with actual image paths
+        'invoice2.png',
+        'invoice3.png'
+    ];
+    let currentIndex = 0;
+
+    // Update the carousel image
+    function updateImage() {
+        document.getElementById('carousel-image').src = images[currentIndex];
+        document.getElementById('enlarge-image').src = images[currentIndex];
+    }
+
+    // Show the previous image
+    function prevSlide() {
+        currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
+        updateImage();
+    }
+
+    // Show the next image
+    function nextSlide() {
+        currentIndex = (currentIndex < images.length - 1) ? currentIndex + 1 : 0;
+        updateImage();
+    }
+
+    // Enlarge image when tapped/clicked
+    function enlargeImage() {
+        document.getElementById('enlarge-container').style.display = 'flex';
+    }
+
+    // Close enlarged image view
+    function closeEnlarge() {
+        document.getElementById('enlarge-container').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

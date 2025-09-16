@@ -1,0 +1,30 @@
+2025-04-30 15:39:27 error: Cannot read properties of undefined (reading 'email')
+2025-04-30 15:40:17 error: Cannot read properties of undefined (reading 'email')
+2025-04-30 15:57:44 error: uncaughtException: exphbs is not defined
+ReferenceError: exphbs is not defined
+    at file:///Users/asadjalil/Documents/Office%20Work/Clients/Raquel%20De%20Lavandeyra/Event_Dashboard/src/app.js:17:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-04-30 15:58:47 error: uncaughtException: exphbs is not defined
+ReferenceError: exphbs is not defined
+    at file:///Users/asadjalil/Documents/Office%20Work/Clients/Raquel%20De%20Lavandeyra/Event_Dashboard/src/app.js:17:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-04-30 15:59:01 error: uncaughtException: exphbs is not defined
+ReferenceError: exphbs is not defined
+    at file:///Users/asadjalil/Documents/Office%20Work/Clients/Raquel%20De%20Lavandeyra/Event_Dashboard/src/app.js:17:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-04-30 15:59:37 error: uncaughtException: exphbs is not defined
+ReferenceError: exphbs is not defined
+    at file:///Users/asadjalil/Documents/Office%20Work/Clients/Raquel%20De%20Lavandeyra/Event_Dashboard/src/app.js:17:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-04-30 15:59:57 error: uncaughtException: exphbs is not defined
+ReferenceError: exphbs is not defined
+    at file:///Users/asadjalil/Documents/Office%20Work/Clients/Raquel%20De%20Lavandeyra/Event_Dashboard/src/app.js:17:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-04-30 16:01:41 error: uncaughtException: exphbs is not defined
+ReferenceError: exphbs is not defined
+    at file:///Users/asadjalil/Documents/Office%20Work/Clients/Raquel%20De%20Lavandeyra/Event_Dashboard/src/app.js:17:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-04-30 16:01:44 error: uncaughtException: exphbs is not defined
+ReferenceError: exphbs is not defined
+    at file:///Users/asadjalil/Documents/Office%20Work/Clients/Raquel%20De%20Lavandeyra/Event_Dashboard/src/app.js:17:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)

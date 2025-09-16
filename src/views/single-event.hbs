@@ -1,0 +1,33 @@
+<div class="container my-5 text-white">
+    <div class="card bg-dark shadow-lg p-5" id="{{event.id}}">
+        <h1 class="mb-4 text-center">{{event.name}}</h1>
+        <div class="event-details">
+            <p><strong>Unique Event ID:</strong> {{event.uniqueEventId}}</p>
+            <p><strong>Email:</strong> {{event.email}}</p>
+            <p><strong>Event:</strong> {{event.title}}</p>
+            <p><strong>Creator Id:</strong> {{event.uniqueCreatorId}}</p>
+            <p><strong>Calendar Id:</strong> {{event.calendar_id}}</p>
+            <p><strong>Unique Link:</strong> {{event.uniqueLink}}</p>
+            <p><strong>Address:</strong> {{event.address}}</p>
+            <p>
+                <strong>Ics Details:</strong>
+                <a href="{{baseUrl}}/ics/{{event.uniqueEventId}}.ics" download>
+                    Download
+                </a>
+            </p>
+            <!-- Display time slots if they exist -->
+            {{#if event.timeSlots}}
+            <h3>Time Slots</h3>
+            <ul>
+                {{#each event.timeSlots}}
+                <li>
+                    <strong>Start date:</strong> {{this.start}}, <strong>End date:</strong> {{this.end}}
+                </li>
+                {{/each}}
+            </ul>
+            {{else}}
+            <p>No time slots available.</p>
+            {{/if}}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+Okay got it let me repeat again what i am gonna start with tomorrow
+1. Duplicate importCal project and call it chatListener
+2. Add a new page similar to what we have added in Event_Dashboard project with a calendar view and chat
+3. Then allow user to have conversation
+4. Read all uploaded ICS files context or selected files context depend on user.
+4. Add Indicators in our AI chat support that when ever AI things an event is going to change or user have requested something which can impact a change in an event then we should show that message which you mentioned.
+5. The AI indicators should work as expected with users choice.
+
+
+Raquel
+3. Make sure you connect the import function to this page.
+It’s like the next step after import and it becomes like the default page
+
+4. To me it seems that we should be converting the import ICS to json and storing it. Making sure we map each ICS id file to the json file
+ 
+ Make sure you’re using regexp for indications do not do anything else, but that before you pass to GPT

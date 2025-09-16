@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:4d269215-5562-44bb-bba5-1d318ee763ba-0
+DTSTART:20250425T1200Z
+DTEND:20250425T1300Z
+DTSTAMP:20250424T221800Z
+SUMMARY:Dance Class
+LOCATION:, , , , , Punjab, Pakistan, 
+DESCRIPTION:KodX-3
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Dance Class":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250424T221800Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:4d269215-5562-44bb-bba5-1d318ee763ba
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+BEGIN:VEVENT
+UID:4d269215-5562-44bb-bba5-1d318ee763ba-1
+
+
+DTSTAMP:20250424T221800Z
+SUMMARY:Dance Class
+LOCATION:, , , , , Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Dance Class":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250424T221800Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:4d269215-5562-44bb-bba5-1d318ee763ba
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+
+X-EXTRA:[{"message":"Testing By Tahir"},{"location":"Punjab, Pakistan"},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"parent\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@kodxsystem.com\",\"mobile\":\"07378492257\",\"isEmailChecked\":false,\"isMobileChecked\":false}]"},{"contact_group_id":"2"},{"state":"Punjab"},{"country":"Pakistan"},{"room":""},{"place":""}]
+END:VCALENDAR

@@ -1,0 +1,75 @@
+<div class="selector" id="{{id}}">
+    <div class="selector-header" onclick="toggleSelector(this,'{{id}}')">
+        <h2>{{title}}</h2>
+        <div class="arrow"></div>
+    </div>
+
+    <div class="selector-content" id="selectorContent">
+        {{#each items}}
+        <div class="selector-item" data-id="{{id}}" data-value="{{value}}" onclick="selectItem(this, '{{../id}}')">{{name}}
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+<style>
+    .selector {
+        width: 300px;
+        background-color: #323030;
+        border-radius: 0.8rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #E1BB53;
+    }
+
+    .selector-header {
+        background-color: #323030;
+        color: white;
+        padding: 0.4rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        border-bottom: 1px solid #E1BB53;
+    }
+
+    .selector-header h2 {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .arrow {
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #E1BB53;
+        transition: transform 0.3s ease;
+    }
+
+    .selector-content {
+        max-height: 0;
+        overflow: auto;
+        transition: max-height 0.3s ease;
+    }
+
+    .selector-content.open {
+        max-height: 300px;
+    }
+
+    .selector-item {
+        padding: 0.2rem 0.8rem;
+        color: white;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .selector-item:first-child {
+        border-top: none;
+    }
+
+    .selector-item.selected {
+        background-color: #4a4a4a;
+    }
+</style>

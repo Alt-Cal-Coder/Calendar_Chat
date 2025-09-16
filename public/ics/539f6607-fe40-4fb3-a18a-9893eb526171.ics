@@ -1,0 +1,48 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+PRODID:adamgibbons/ics
+METHOD:PUBLISH
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:539f6607-fe40-4fb3-a18a-9893eb526171-0
+DTSTART:20250509T1500Z
+DTEND:20250509T1600Z
+DTSTAMP:20250508T115543Z
+SUMMARY:Testing SMS Again
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:KodX-10
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Testing SMS Again":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250508T115543Z
+SEQUENCE:0
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:539f6607-fe40-4fb3-a18a-9893eb526171
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+BEGIN:VEVENT
+UID:539f6607-fe40-4fb3-a18a-9893eb526171-1
+
+
+DTSTAMP:20250508T115543Z
+SUMMARY:Testing SMS Again
+LOCATION:, , , , Lahore, Punjab, Pakistan, 
+DESCRIPTION:
+ATTENDEE;RSVP=TRUE;CUTYPE="GROUP";ROLE="REQ-PARTICIPANT";PARTSTAT="NOT-ACCEPTED";EMAIL="tahir@kodxsystem.com";CN="Tahir Amjad":mailto:tahir@kodxsystem.com
+ORGANIZER;CN="Testing SMS Again":MAILTO:tahir@kodxsystem.com
+LAST-MODIFIED:20250508T115543Z
+SEQUENCE:0
+
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+X-EVENT-ID:539f6607-fe40-4fb3-a18a-9893eb526171
+X-WR-CALNAME:Creator Group
+X-CREATOR-ID:1
+END:VEVENT
+
+
+X-EXTRA:[{"message":"Testing SMS Again Message"},{"location":"Lahore, Punjab, Pakistan"},{"members":"[{\"indexKey\":\"0\",\"user_type\":\"parent\",\"name\":\"Tahir Amjad\",\"email\":\"tahir@kodxsystem.com\",\"mobile\":\"923224512868\",\"isEmailChecked\":true,\"isMobileChecked\":true}]"},{"contact_group_id":"2"},{"city":"Lahore"},{"state":"Punjab"},{"country":"Pakistan"},{"room":""},{"place":""}]
+END:VCALENDAR

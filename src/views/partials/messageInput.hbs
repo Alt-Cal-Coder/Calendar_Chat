@@ -1,0 +1,101 @@
+<div class="mb-3">
+    <div class="position-relative">
+        <textarea class="form-control styled_input" rows="4" id="message" name="message" placeholder="Write a message here"></textarea>
+        <button class="btn position-absolute attachment-btn" type="button" id="message-attachment">
+            <label for="messageFileInput" class="input-group-text" style="cursor: pointer;">
+                <i class="bi bi-paperclip"></i>
+            </label>
+            <input type="file" id="messageFileInput" name="files" multiple class="d-none">
+        </button>
+    </div>
+    <div id="files-preview"></div>
+</div>
+
+<style>
+  .attachment-btn {
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+  }
+
+  #files-preview {
+    margin-top: 10px;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px;
+    border: 1px solid #ced4da;
+    background: #f8f9fa;
+    border-radius: 5px;
+    margin-top: 5px;
+  }
+
+  .file-item i {
+    cursor: pointer;
+    color: red;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const messageTextarea = document.getElementById("message");
+    const messageFileInput = document.getElementById("messageFileInput");
+    const filesPreview = document.getElementById("files-preview");
+
+    messageTextarea.addEventListener("input", function () {
+        if (this.value.trim() !== "") {
+            this.classList.add("filled");
+        } else {
+            this.classList.remove("filled");
+        }
+    });
+    messageFileInput.addEventListener("input", function () {
+        if (this.value.trim() !== "") {
+            this.classList.add("filled");
+        } else {
+            this.classList.remove("filled");
+        }
+    });
+
+    // Handle file selection
+    messageFileInput.addEventListener("change", function () {
+      filesPreview.innerHTML = ""; // Clear previous files
+
+      if (this.files.length > 0) {
+        Array.from(this.files).forEach((file, index) => {
+          const fileItem = document.createElement("div");
+          fileItem.classList.add("file-item");
+          fileItem.innerHTML = `
+            <span>${file.name}</span>
+            <i class="bi bi-x-circle" data-index="${index}"></i>
+          `;
+          filesPreview.appendChild(fileItem);
+        });
+
+        // Make sure the textarea remains styled when files are added
+        messageTextarea.classList.add("filled");
+      }
+    });
+
+    // Remove file from preview
+    filesPreview.addEventListener("click", function (e) {
+      if (e.target.classList.contains("bi-x-circle")) {
+        const index = e.target.getAttribute("data-index");
+        const fileList = Array.from(messageFileInput.files);
+        fileList.splice(index, 1);
+
+        // Update file input
+        const dataTransfer = new DataTransfer();
+        fileList.forEach(file => dataTransfer.items.add(file));
+        messageFileInput.files = dataTransfer.files;
+
+        // Re-render file preview
+        messageFileInput.dispatchEvent(new Event("change"));
+      }
+    });
+  });
+</script>

@@ -1,0 +1,10 @@
+2025-05-08 15:03:45 error: Promise Rejection Error Can't add new command when connection is in closed state
+2025-05-08 15:05:09 error: Promise Rejection Error Can't add new command when connection is in closed state
+2025-05-08 16:11:22 error: Unknown column 'NaN' in 'where clause'
+2025-05-08 16:53:58 error: Error sending SMS to undefined: Required parameter "params['to']" missing.
+2025-05-08 16:55:44 error: Error sending SMS to 923224512868: Authenticate
+2025-05-08 16:57:20 error: Error sending SMS to 923224512868: Authenticate
+2025-05-08 16:59:15 error: Error sending SMS to 923224512868: Authenticate
+2025-05-08 16:59:29 error: Error sending SMS to +923224512868: Authenticate
+2025-05-08 16:59:56 error: Error sending SMS to +923224512868: Authenticate
+2025-05-08 17:02:21 error: Error sending SMS to +923224512868: Authenticate

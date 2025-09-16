@@ -1,0 +1,65 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{title}}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="stylesheet" href="/styles/invoice.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+</head>
+
+<style>
+  .styled_input {
+    color: #212529;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .styled_input.filled {
+    border: 1px solid #e1bb53 !important;
+    background-color: #323030 !important;
+    color: white !important;
+  }
+</style>
+
+<body>
+  {{{body}}}
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="/src-public/js/userUtils.js"></script>
+  <script>
+    // Check for admin status and apply theme if needed
+    document.addEventListener('DOMContentLoaded', function() {
+      if (isAdmin()) {
+        document.body.classList.add('admin-theme');
+      }
+    });
+    
+    function parseFormData(formData) {
+      const formObject = Object.fromEntries(formData.entries());
+        for (let key in formObject) {
+          try {
+            formObject[key] = JSON.parse(formObject[key]);
+          } catch (error) {
+            // Keep the original value if it's not JSON
+          }
+        }
+        return formObject;
+      }
+  </script>
+</body>
+
+</html>

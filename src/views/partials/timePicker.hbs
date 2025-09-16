@@ -1,0 +1,30 @@
+<div class="input-group">
+    <input type="text" name="{{id}}" readonly class="form-control time-picker styled_input" id="timepicker-{{id}}" placeholder="00:00 AM">
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const timepickerId = "timepicker-{{id}}";
+        const input = document.getElementById(timepickerId);
+
+        flatpickr(`#${timepickerId}`, {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "h:i K", // h:i for hour:min, K for AM/PM
+            time_24hr: false, // Use 12-hour format
+            minuteIncrement: 1, 
+        });
+
+        const inputs = document.querySelectorAll(".styled_input");
+
+        inputs.forEach((input) => {
+            input.addEventListener("input", function () {
+            if (this.value.trim() !== "") {
+                this.classList.add("filled");
+            } else {
+                this.classList.remove("filled");
+            }
+            });
+        });
+    });
+</script>

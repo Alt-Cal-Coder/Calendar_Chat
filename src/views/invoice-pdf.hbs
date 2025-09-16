@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Invoice</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: white;
+      color: #333;
+    }
+
+    .invoice-container {
+      margin: 0 auto;
+      display: block;
+      max-width: 800px;
+    }
+
+    .header {
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      height: 50px;
+      object-fit: contain;
+      max-width: 200px;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .date {
+      text-align: right;
+      color: #888;
+    }
+
+    .class-details-heading {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 0px;
+      text-align: left;
+    }
+
+    h2 {
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 10px 5px;
+    }
+
+    td {
+      padding: 5px 10px;
+      vertical-align: middle;
+    }
+
+    .center_td {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .label {
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+
+    .class-name {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+    }
+
+    .price {
+      background-color: #888;
+      color: white;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+
+    .classes-count {
+      background-color: #000;
+      color: white;
+      border-radius: 5px;
+      white-space: nowrap;
+    }
+
+    .date-range,
+    .time-range {
+      white-space: nowrap;
+    }
+
+    .date-range span,
+    .time-range span {
+      display: inline-block;
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .time-range span {
+      background-color: #000;
+      color: white;
+    }
+
+    .amount-badge {
+      background-color: #000;
+      color: white;
+      border-radius: 5px;
+      padding: 0.2rem 0.5rem;
+      text-align: center;
+      width: 100px;
+    }
+
+    .payment-button {
+      padding: 10px 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .payment-button.active {
+      background-color: #888;
+      color: white;
+    }
+
+    .qr-code img {
+      width: 150px;
+      height: 150px;
+    }
+
+    .payment-options-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .payment-options {
+      width: 60%;
+    }
+
+
+    .fee_type {
+      width: 150px;
+    }
+
+    .fee_type>div {
+      color: #323030;
+      border: 1px solid #D8D8D8;
+      border-radius: 5px;
+      padding: 5px;
+    }
+
+    .unit_cost {
+      width: 150px;
+    }
+
+    .unit_cost>div {
+      color: white;
+      border: 1px solid #D8D8D8;
+      border-radius: 5px;
+      background-color: #757474;
+      padding: 5px;
+    }
+
+    .total_classes {
+      width: 150px;
+    }
+
+    .total_classes>div {
+      color: white;
+      border: 1px solid #D8D8D8;
+      border-radius: 5px;
+      background-color: black;
+      padding: 5px;
+    }
+
+    .event_name>div {
+      color: #585656;
+      border: 1px solid #323030;
+      border-radius: 5px;
+      text-align: center;
+      padding: 5px;
+    }
+
+    .amount-due-table {
+      margin-top: 40px;
+    }
+
+    #classDetails {
+      display: flex;
+      flex-direction: column;
+      gap: 46px;
+    }
+
+
+    .date-range-col>div,
+    .time-range-col>div,
+    .date-col>div,
+    .amount-due-col>div {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 50%;
+      margin: auto;
+      gap: 10px;
+    }
+
+    .day-col>div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50%;
+      margin: auto;
+      gap: 10px;
+    }
+
+    .date-badge {
+      border: 1px solid #D8D8D8;
+      color: #323030;
+      border-radius: 5px;
+      padding: 0.2rem 0.5rem;
+      font-size: 14px;
+      font-weight: 550;
+      text-align: center;
+      width: 100px;
+    }
+
+    .day-badge {
+      border: 1px solid #D8D8D8;
+      color: white;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: 550;
+      background-color: black;
+      text-align: center;
+      padding: 0.5rem;
+    }
+
+    .time-badge {
+      border: 1px solid #D8D8D8;
+      color: white;
+      border-radius: 5px;
+      padding: 0.2rem 0.5rem;
+      font-size: 14px;
+      font-weight: 550;
+      background-color: black;
+      text-align: center;
+      width: 100px;
+    }
+
+    .to-badge {
+      color: #757474;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="invoice-container">
+    <table class="header" width="100%">
+      <tr>
+        <td style="width: 200px;">
+          <img class="logo" src="{{logo}}" alt="Company Logo" />
+        </td>
+        <td class="date" id="dateOfIssue">{{createdAt}}</td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span id="companyName">{{creatorName}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <span id="companyLocation">{{location}}</span>
+        </td>
+      </tr>
+    </table>
+
+
+
+    <div>
+      <table>
+        <tbody>
+          <tr>
+            <td colspan="2" class="class-details-heading">Class Details</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Class details will be inserted here -->
+      <div id="classDetails">
+
+      </div>
+    </div>
+
+    <table class="amount-due-table">
+      <tr>
+        <td style="font-weight: bold;color:#000; width: 150px; font-size:16px;">AMOUNT DUE</td>
+        <td class="amount-due-col">
+          <div>
+            <span class="amount-badge" id="amountDue">${{cost}}</span>
+            <span class="to-badge">BY</span>
+            <span class="amount-badge" id="paymentDueDate">{{createdAt}}</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+
+
+    <div class="payment-options-container">
+      <table class="payment-options">
+        <tbody id="paymentOptions">
+          <tr>
+            <td style="font-weight: bold;color:#000; width: 150px;font-size:16px;">PAYMENT OPTIONS</td>
+          </tr>
+        </tbody>
+        <!-- Payment options will be inserted here -->
+      </table>
+
+      <table class="qr-code">
+        <tr>
+          <td align="center">
+            <img src="{{qrCode}}" alt="QR Code" id="qrCode" />
+            <div style="margin-top: 10px">SCAN QR CODE</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const invoiceData = JSON.parse(`{{{json this}}}`);
+    // Populate company name and date of issue
+
+    // Populate payment options
+    const paymentOptionsTable = document.getElementById("paymentOptions");
+    const paymentOptions = invoiceData.paymentOptions;
+    for (const [option, isAvailable] of Object.entries(paymentOptions)) {
+      if (option !== "qr_code" && isAvailable) {
+        const formattedOption = option.replace(/_/g, " ").toUpperCase();
+        const isActive = option === "card_on_file" ? "active" : "";
+        paymentOptionsTable.innerHTML += `
+                    <tr>
+                        <td>
+                          <div class="payment-button ${isActive}">
+                              ${formattedOption}
+                          </div>
+                        </td>
+                    </tr>
+                `;
+      }
+    }
+
+    // Set QR code image
+    // document.getElementById('qrCode').src = invoiceData.data.payment_options.qr_code;
+  </script>
+
+  <script>
+    function formatDateWithFlatpickr(dateString, format, expectedFormat) {
+
+      if (!dateString || !format || !expectedFormat) {
+        return null;
+      }
+      // Parse the date string using Flatpickr's parseDate function
+      const dateObj = flatpickr.parseDate(dateString, format);
+
+      if (!dateObj) {
+        return null;
+      }
+
+      // Format the date object to yyyy-mm-dd
+      const formattedDate = flatpickr.formatDate(dateObj, expectedFormat);
+
+      return formattedDate;
+    }
+
+    function getMonthName(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString('default', { month: 'long' });
+    }
+
+    function groupSlotByTime(slots) {
+      const groupedSlots = slots.reduce((acc, slot) => {
+        const key = `${slot.start_time}-${slot.end_time}`;
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push(slot);
+        return acc;
+      }, {});
+
+      return groupedSlots;
+    }
+
+    function populateInvoiceTimeSlots() {
+      // Populate class details
+      const classDetailsTables = document.getElementById("classDetails");
+      const { day_date_time_slots, date_range_time_slots, date_time_slots } = invoiceData.themeSlots;
+
+      const monthGroups = {};
+      date_time_slots.forEach(timeslot => {
+        const date = timeslot.date;
+        const monthName = getMonthName(date);
+
+        if (!monthGroups[monthName]) {
+          monthGroups[monthName] = [];
+        }
+        monthGroups[monthName].push(timeslot);
+      });
+
+      date_range_time_slots.forEach((slot) => {
+        const { start_time, end_time, date_range } = slot;
+        const date = date_range ? date_range.split(" - ") : [];
+
+        const startDate = date[0] ? `<span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(date[0], "Y-m-d", "m-d-Y")}</span>` : '';
+        const endDate = date[1] ? `<span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(date[1], "Y-m-d", "m-d-Y")}</span>` : '';
+        const startTimeHTML = start_time ? `<span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span>` : '';
+        const endTimeHTML = end_time ? `<span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span>` : '';
+        const toHTML = startDate && endDate ? '<span class="to-badge">TO</span>' : '';
+
+        const dateRangeCol = (startDate || endDate) ? `<td class="date-range-col"><div>${startDate} ${toHTML} ${endDate}</div></td>` : '';
+        const timeRangeCol = (startTimeHTML || endTimeHTML) ? `<td class="time-range-col"><div>${startTimeHTML} ${toHTML} ${endTimeHTML}</div></td>` : '';
+
+        let html = `
+        <table>
+          <tr>
+            <td class="fee_type"><div>${invoiceData.fee_type?.name || ''}</div></td>
+            <td class="event_name"><div>${invoiceData.title || ''}</div></td>
+          </tr>
+          <tr>
+            <td class="unit_cost"><div>$${invoiceData.unitCost || ''}</div></td>
+            ${dateRangeCol}
+          </tr>
+          <tr>
+            <td class="total_classes"><div>${invoiceData.occurrences?.totalClasses || ''} Classes</div></td>
+            ${timeRangeCol}
+          </tr>
+        </table>
+  `;
+        classDetailsTables.innerHTML += html;
+      });
+
+      Object.keys(monthGroups).forEach((key) => {
+        const groupedSlots = groupSlotByTime(monthGroups[key]);
+
+        Object.keys(groupedSlots).forEach((slot) => {
+          const { start_time, end_time } = groupedSlots[slot][0];
+          const dates = groupedSlots[slot].map(slot => slot.date);
+
+          const datesHTML = dates.map(date => date ? `<span class="w-100 date-badge text-uppercase">${formatDateWithFlatpickr(date, "Y-m-d", "m-d-Y")}</span>` : '').join('');
+          const startTimeHTML = start_time ? `<span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span>` : '';
+          const endTimeHTML = end_time ? `<span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span>` : '';
+          const toHTML = startTimeHTML && endTimeHTML ? '<span class="to-badge">TO</span>' : '';
+
+          const dateCol = datesHTML ? `<td class="date-col"><div>${datesHTML}</div></td>` : '';
+          const timeRangeCol = (startTimeHTML || endTimeHTML) ? `<td class="time-range-col"><div>${startTimeHTML} ${toHTML} ${endTimeHTML}</div></td>` : '';
+
+          let html = `
+          <table>
+            <tr>
+              <td class="fee_type"><div>${invoiceData.fee_type?.name || ''}</div></td>
+              <td class="event_name"><div>${invoiceData.title || ''}</div></td>
+            </tr>
+            <tr>
+              <td class="unit_cost"><div>$${invoiceData.unitCost || ''}</div></td>
+              ${dateCol}
+            </tr>
+            <tr>
+              <td class="total_classes"><div>${invoiceData.occurrences?.totalClasses || ''} Classes</div></td>
+              ${timeRangeCol}
+            </tr>
+          </table>
+    `;
+          classDetailsTables.innerHTML += html;
+        });
+      });
+
+      day_date_time_slots.forEach((slot) => {
+        const { start_time, end_time, start_date, day, end_date } = slot;
+        const days = day ? day.split(",") : [];
+
+        const dayHTML = days.map(day => `<span class="w-100 day-badge text-uppercase">${day}</span>`).join('');
+        const startDate = start_date ? `<span class="w-100 date-badge start-date-badge text-uppercase">${formatDateWithFlatpickr(start_date, "Y-m-d", "m-d-Y")}</span>` : '';
+        const endDate = end_date ? `<span class="w-100 date-badge end-date-badge text-uppercase">${formatDateWithFlatpickr(end_date, "Y-m-d", "m-d-Y")}</span>` : '';
+        const startTimeHTML = start_time ? `<span class="w-100 time-badge start-time-badge text-uppercase">${formatDateWithFlatpickr(start_time, "H:i", "h:i K")}</span>` : '';
+        const endTimeHTML = end_time ? `<span class="w-100 time-badge end-time-badge text-uppercase">${formatDateWithFlatpickr(end_time, "H:i", "h:i K")}</span>` : '';
+        const toHTML = startTimeHTML && endTimeHTML ? '<span class="to-badge">TO</span>' : '';
+
+        const dateRangeCol = (startDate || endDate) ? `<td class="date-range-col"><div>${startDate} ${toHTML} ${endDate}</div></td>` : '';
+        const timeRangeCol = (startTimeHTML || endTimeHTML) ? `<td class="time-range-col"><div>${startTimeHTML} ${toHTML} ${endTimeHTML}</div></td>` : '';
+        const dayCol = dayHTML ? `<td class="day-col"><div>${dayHTML}</div></td>` : '';
+
+        let html = `
+          <table>
+            <tr>
+              <td class="fee_type"><div>${invoiceData.fee_type?.name || ''}</div></td>
+              <td class="event_name"><div>${invoiceData.title || ''}</div></td>
+            </tr>
+            <tr>
+              <td class="unit_cost"><div>$${invoiceData.unitCost || ''}</div></td>
+              ${dateRangeCol}
+            </tr>
+            <tr>
+              <td class="total_classes"><div>${invoiceData.occurrences?.totalClasses || ''} Classes</div></td>
+              ${timeRangeCol}
+            </tr>
+            <tr>
+              <td></td>
+              ${dayCol}
+            </tr>
+          </table>
+  `;
+        classDetailsTables.innerHTML += html;
+      });
+
+    }
+
+    // Wait for the DOM to be fully loaded before executing the script
+    document.addEventListener('DOMContentLoaded', function () {
+      populateInvoiceTimeSlots();
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</body>
+
+</html>

@@ -1,0 +1,204 @@
+<div class="mb-3">
+  <div class="input-group location-group">
+    <input
+      type="text"
+      class="form-control styled_input"
+      id="location"
+      name="location"
+      placeholder="LOCATION"
+      autocomplete="off"
+    />
+    <div id="location-options"></div>
+    <svg
+      class="location-icon"
+      width="26"
+      height="25"
+      viewBox="0 0 26 25"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect x="5.69751" width="13.9229" height="22.1501" fill="#939393" />
+      <rect x="8.54272" y="2.52783" width="2.84787" height="2.84787" fill="white" />
+      <rect x="8.54272" y="6.96582" width="2.84787" height="2.84787" fill="white" />
+      <rect x="8.54272" y="11.3901" width="2.84787" height="2.84787" fill="white" />
+      <rect x="14.5583" y="11.3901" width="2.84787" height="2.84787" fill="white" />
+      <rect x="14.5583" y="2.52783" width="2.84787" height="2.84787" fill="white" />
+      <rect x="14.5583" y="6.96582" width="2.84787" height="2.84787" fill="white" />
+      <rect x="10.7568" y="17.0859" width="4.11359" height="5.06288" fill="white" />
+      <rect y="22.7852" width="25.6308" height="2.21501" fill="#939393" />
+    </svg>
+  </div>
+</div>
+
+<style>
+  .location-group {
+    position: relative;
+  }
+
+  .location-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+
+  #location-options {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: white;
+    top: calc(100% + 8px);
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    color: #000;
+    display: none;
+    z-index: 1000;
+  }
+
+  .location-option {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .location-option:hover {
+    background-color: #f0f0f0;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    color: #777;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const locationInput = document.getElementById("location");
+    const locationOptions = document.getElementById("location-options");
+    let timeout = null;
+
+    locationInput.addEventListener("input", (e) => {
+      const value = e.target.value.trim();
+
+      if (value.trim() !== "") {
+        e.target.classList.add("filled");
+      } else {
+        e.target.classList.remove("filled");
+      }
+
+      if (value.length > 2) {
+        showLoading();
+        clearTimeout(timeout);
+
+        timeout = setTimeout(() => {
+          fetchAddressOptions(value);
+        }, 500); // Debounce API calls
+      } else {
+        hideOptions();
+      }
+    });
+
+    async function fetchAddressOptions(searchKeyword) {
+      try {
+        const { latitude, longitude } = await getUserLocation();
+        const response = await fetch(
+          `/location/get-address-options?searchKeyword=${searchKeyword}&lat=${latitude}&lng=${longitude}`
+        );
+        const result = await response.json();
+
+        if (result.success && result.data.length) {
+          showOptions(result.data);
+        } else {
+          showNoResults();
+        }
+      } catch (error) {
+        console.error("Error fetching addresses:", error);
+        showNoResults();
+      }
+    }
+
+    async function getUserLocation() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              });
+            },
+            (error) => {
+              console.error("Error getting location:", error);
+              resolve({ latitude: null, longitude: null }); // Fallback if location access is denied
+            }
+          );
+        } else {
+          resolve({ latitude: null, longitude: null }); // Browser doesn't support geolocation
+        }
+      });
+    }
+
+    async function fetchAddressDetails(placeId) {
+      try {
+        const response = await fetch(`/location/get-address-details/${placeId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const { room, place, address_line1, address_line2, city, state, country, postal_code } = result.data;
+          const fullAddress = [room, place, address_line1, address_line2, city, state, country, postal_code]
+            .filter(Boolean)
+            .join(", ");
+          locationInput.value = fullAddress;
+
+          window.selectedAddress = result.data;
+          locationInput.classList.add("filled"); // Ensure styling remains after selection
+        }
+      } catch (error) {
+        console.error("Error fetching address details:", error);
+      }
+    }
+
+    function showOptions(options) {
+      locationOptions.innerHTML = options
+        .map(
+          (option) => `<div class="location-option" data-place-id="${option.place_id}">${option.description}</div>`
+        )
+        .join("");
+
+      locationOptions.style.display = "block";
+
+      document.querySelectorAll(".location-option").forEach((option) => {
+        option.addEventListener("click", async (e) => {
+          const placeId = e.target.getAttribute("data-place-id");
+          locationInput.value = e.target.innerText;
+          hideOptions();
+          await fetchAddressDetails(placeId);
+        });
+      });
+    }
+
+    function showLoading() {
+      locationOptions.innerHTML = `<div class="loading">Loading...</div>`;
+      locationOptions.style.display = "block";
+    }
+
+    function showNoResults() {
+      locationOptions.innerHTML = `<div class="loading">No results found</div>`;
+      locationOptions.style.display = "block";
+    }
+
+    function hideOptions() {
+      locationOptions.style.display = "none";
+    }
+
+    document.addEventListener("click", (event) => {
+      if (!locationInput.contains(event.target) && !locationOptions.contains(event.target)) {
+        hideOptions();
+      }
+    });
+  });
+</script>

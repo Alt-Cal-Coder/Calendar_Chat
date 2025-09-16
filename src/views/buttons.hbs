@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+</head>
+
+<body>
+  <a href="/event" class="create_event_link">Create Event</a>
+  <a href="/event/add-message" class="create_event_link">Add Message to Existing Event</a>
+  <a href="/event/all" class="create_event_link">All Events</a>
+</body>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+
+    function deleteCookie(name) {
+      try{
+      document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      }catch(err){
+        console.log("Cookie Not Found!")
+      }
+    }
+
+    const url = new URL(window.location.href);
+    const ucidParam = url.searchParams.get("ucid");
+    
+    if (ucidParam) {
+      // Validate ucid format (should be userId:isAdmin)
+      if (!ucidParam.includes(':')) {
+        showErrorMessage("Invalid UCID format. Expected format: userId:isAdmin");
+        return;
+      }
+      
+      // Parse the format: userId:isAdmin
+      const [userId, isAdmin] = ucidParam.split(':');
+      
+      // Validate userId and isAdmin values
+      if (!userId || (isAdmin !== '0' && isAdmin !== '1')) {
+        showErrorMessage("Invalid UCID values. User ID must be provided and isAdmin must be 0 or 1");
+        return;
+      }
+      
+      const isAdminValue = isAdmin === '1';
+
+      // Set cookies with parsed values
+      document.cookie = `creatorId=${userId}; path=/;`;
+      document.cookie = `isAdmin=${isAdminValue}; path=/;`;
+      
+      // Store in localStorage
+      localStorage.setItem("isCreator", "true");
+      localStorage.setItem("isAdmin", isAdminValue.toString());
+      
+      // Fetch user data from API
+      fetchUserData(userId);
+      
+      // Only show "Continue as Pro/Admin" button for admin users
+      if (isAdminValue) {
+        createProButton(isAdminValue);
+      }
+    } else {
+      // No ucid parameter - treat as normal user
+      console.log("I'm here")
+      localStorage.removeItem("creatorId");
+      localStorage.removeItem("isCreator");
+      localStorage.removeItem("isAdmin");
+      localStorage.removeItem("userData");
+      deleteCookie("creatorId");
+      deleteCookie("isCreator");
+      deleteCookie("isAdmin");
+      deleteCookie("userData");
+      // No "Continue as Pro" button for normal users
+    }
+    
+    // Function to show error message
+    function showErrorMessage(message) {
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "error-message";
+      errorDiv.style.color = "red";
+      errorDiv.style.padding = "10px";
+      errorDiv.style.margin = "10px 0";
+      errorDiv.style.border = "1px solid red";
+      errorDiv.style.borderRadius = "5px";
+      errorDiv.textContent = message;
+      
+      // Insert at the top of the body
+      document.body.insertBefore(errorDiv, document.body.firstChild);
+      
+      // Clear cookies and localStorage
+      document.cookie = "creatorId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      document.cookie = "isAdmin=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      localStorage.removeItem("isCreator");
+      localStorage.removeItem("isAdmin");
+      localStorage.removeItem("userData");
+    }
+    
+    // Modified function to show different button based on admin status
+    function createProButton(isAdmin) {
+      const a = document.createElement("a");
+      a.setAttribute("href", "/event");
+      a.setAttribute("class", "create_event_link");
+      
+      if (isAdmin) {
+        a.innerHTML = "Continue as Pro";
+        a.classList.add("admin-button");
+      }
+      
+      document.body.append(a);
+    }
+    
+    // Function to fetch user data and store it
+    async function fetchUserData(userId) {
+      try {
+        const response = await fetch(`/user/${userId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          // Store user data in localStorage for app-wide access
+          localStorage.setItem("userData", JSON.stringify(data.user));
+          
+          // Dispatch event to notify other parts of the app
+          const event = new CustomEvent('userDataLoaded', { 
+            detail: data.user 
+          });
+          document.dispatchEvent(event);
+        } else {
+          console.error("Failed to fetch user data:", data.message);
+          showErrorMessage("Failed to fetch user data: " + (data.message || "User not found"));
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        showErrorMessage("Error fetching user data. Please try again.");
+      }
+    }
+  });
+</script>
+
+</html>

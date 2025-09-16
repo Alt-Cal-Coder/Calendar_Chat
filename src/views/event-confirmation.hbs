@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card mt-3 mb-3 shadow">
+            <div class="row">
+                <div class="col-md-12 pt-3 text-center">
+                    <h1>You're Invited to an Event!</h1>
+                </div>
+                <div class="col-md-12 text-center">
+                    <p>
+                        <strong>Event Title:</strong> {{unique_title}} <br />
+                        <strong>Created By:</strong> {{creator_name}} <br />
+                        <strong>Email:</strong> {{creator_email}} <br />
+                        <strong>Start Date:</strong> {{start_date}} <br />
+                        <strong>End Date:</strong> {{end_date}} <br />
+                        <strong>Start Time:</strong> {{start_time}} <br />
+                        <strong>End Time:</strong> {{end_time}} <br />
+                        <strong>Address:</strong> {{address}} <br />
+                    </p>
+                </div>
+                <div class="col-md-12 pt-3">
+                    <h3>Message from the Event Creator:</h3>
+                    <p>{{creator_message}}</p>
+                </div>
+                <div class="col-md-12 text-center mb-3">
+                    <a class="btn btn-outline-primary" href="{{chat_link}}">Join the Chat Here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

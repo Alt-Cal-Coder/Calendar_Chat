@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/chat-listener-neurodek/src/logs/error/.9519f9a29c34fff6e75137b5bf268900d6331251-audit.json",
+    "files": [
+        {
+            "date": 1750779734951,
+            "name": "/Users/asadjalil/Documents/Office Work/Clients/Raquel De Lavandeyra/chat-listener-neurodek/src/logs/error/2025-06-24.log",
+            "hash": "68a3c86ace0cf153733f291486bd0e5c5e477e1df1fce337cf2bd080e4c2d1d0"
+        }
+    ],
+    "hashType": "sha256"
+}

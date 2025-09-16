@@ -1,0 +1,668 @@
+<div class="container-sm custom-container min-vh-100 d-flex justify-content-center align-items-center py-5"
+    id="edit-message">
+    <div class="event-form p-4 rounded mb-5" id="eventFormContainer">
+        <h3 class="text-center mb-4">Edit Event</h3>
+        <form class="w-100" id="eventForm" enctype="multipart/form-data">
+
+            {{> eventTitleInput }}
+            {{> dateSlots defaultHour="00" defaultMinute="00" }}
+            {{> weeklySlots defaultHour="00" defaultMinute="00" }}
+            {{> locationInput }}
+
+            <div class="d-flex justify-content-end mt-2">
+                <button type="submit" class="btn bg-white d-flex align-items-center gap-2 rounded-pill" id="saveChangesButton">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{{> loader}}
+
+
+<script>
+    // Wait for the DOM to be fully loaded before executing the script
+    document.addEventListener('DOMContentLoaded', async function () {
+
+        // Set up event listeners and initialize components
+        setupFormSubmission();
+        hideDefaultTimeSlots();
+        initializeReviewScreenAction();
+        const uniqueEventId = window.location.pathname.split("/").at(-1);
+
+        await fetchEvent(uniqueEventId);
+
+        function formatDateWithFlatpickr(dateString, format, expectedFormat) {
+
+            if (!dateString || !format || !expectedFormat) {
+                return null;
+            }
+            // Parse the date string using Flatpickr's parseDate function
+            const dateObj = flatpickr.parseDate(dateString, format);
+
+            // Format the date object to yyyy-mm-dd
+            const formattedDate = flatpickr.formatDate(dateObj, expectedFormat);
+
+            return formattedDate;
+        }
+
+        function changeTo24Hours(time) {
+            if (!time) {
+                return null;
+            }
+            let hourAndMinutes = time.split(" ");
+            let amPm = hourAndMinutes[1];
+            let [hour, minute] = hourAndMinutes[0].split(":");
+
+            let hour24 = parseInt(hour, 10);
+            if (amPm === 'PM' && hour24 !== 12) {
+                hour24 += 12;
+            } else if (amPm === 'AM' && hour24 === 12) {
+                hour24 = 0;
+            }
+            return `${hour24.toString().padStart(2, '0')}:${minute}`;
+        }
+
+        // Function to set up form submission
+        function setupFormSubmission() {
+            const eventForm = document.getElementById("eventForm");
+            const loader = document.getElementById("loader");
+
+            eventForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                loader.classList.remove("d-none");
+
+                const formData = new FormData(e.target);
+                const eventName = document.getElementById("")
+                const timeSlots = collectTimeSlots();
+                const weeklySlots = collectWeeklySlots();
+                const address = window.selectedAddress || {};
+                
+                formData.append("timeSlots", JSON.stringify([...timeSlots, ...weeklySlots]));
+
+                // Append address data
+                Object.keys(address).forEach((key) => {
+                    formData.append(key, address[key]);
+                });
+
+                // Remove unnecessary form data
+                ['startDate', 'endDate', 'startTime', 'endTime', 'slot_name', 'weekdays', "name", "email", "mobile", "email_check", "mobile_check"].forEach(key => formData.delete(key));
+
+                {{!-- console.log(Object.fromEntries(formData.entries())); --}}
+
+                try {
+                    const response = await fetch(window.location.pathname, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        await response.json();
+                    } else {
+                        console.error('Error:', response.status);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                } finally {
+                    loader.classList.add("d-none");
+                }
+            });
+
+            // Helper functions for form submission
+            function getGroupId() {
+                const groupSelect = document.getElementById("groupSelect");
+                return groupSelect.value === "new" || groupSelect.value === "new_option" ? document.getElementById("newGroupInput").value : groupSelect.value;
+            }
+
+            function collectTimeSlots() {
+                return collectSlots('#time-slot-container .row', 1);
+            }
+
+            function collectWeeklySlots() {
+                return collectSlots('#weekly-slot-container .row', 2);
+            }
+
+            function collectSlots(selector, type) {
+                return Array.from(document.querySelectorAll(selector)).map(row => ({
+                    type,
+                    startDate: formatDateWithFlatpickr(row.querySelector('[name="startDate"]').value, 'm-d-y', 'Y-m-d'),
+                    endDate: formatDateWithFlatpickr(row.querySelector('[name="endDate"]').value, 'm-d-y', 'Y-m-d'),
+                    startTime: changeTo24Hours(row.querySelector(`[name="startTime"]`).value),
+                    endTime: changeTo24Hours(row.querySelector(`[name="endTime"]`).value),
+                    slotName: row.querySelector('[name="slot_name"]').value,
+                    ...(type === 2 && { weekdays: Array.from(row.querySelectorAll('.week-days-input:checked')).map(cb => cb.value) })
+                }));
+            }
+
+            function collectRecipients() {
+                return Array.from(document.getElementById("recipientsList").children).map(recipient => ({
+                    name: recipient.querySelector("input[name='name']").value,
+                    email: recipient.querySelector("input[name='email']").value,
+                    mobile: recipient.querySelector("input[name='mobile']").value,
+                    isEmailChecked: recipient.querySelector("input[type=checkbox][name=email_check]")?.checked || false,
+                    isMobileChecked: recipient.querySelector("input[type=checkbox][name=mobile_check]")?.checked || false,
+                }));
+            }
+
+            function parseLocationData(data) {
+                const [room_floor, place_name, address_line1, address_line2, city, state, country, postal_code] = data.split(',').map(part => part.trim());
+                return { room_floor, place_name, address_line1, address_line2, city, state, country, postal_code };
+            }
+
+        }
+
+        function initializeContainer(containerId) {
+            const container = document.getElementById(containerId);
+            const rows = container.querySelectorAll('.row');
+
+            rows.forEach((row, index) => {
+                if (!row.querySelector('.button-col')) {
+                    const buttonCol = document.createElement('div');
+                    buttonCol.className = 'col-md-1 button-col';
+                    row.appendChild(buttonCol);
+                }
+                updateCheckboxIds(row);
+            });
+
+            updateButtons(container);
+        }
+
+        function updateButtons(container) {
+            const rows = container.querySelectorAll('.row');
+            rows.forEach((row, index) => {
+                const buttonCol = row.querySelector('.button-col');
+                buttonCol.innerHTML = '';
+
+                if (rows.length == 1) {
+                    const addButton = createButton('<img src="/assets/images/plus.png" alt="plus" width="24" height="24" />', "no_style_btn", () => addRow(container));
+                    buttonCol.appendChild(addButton);
+                }
+
+                if (rows.length > 1 && index == rows.length - 1) {
+                    const addButton = createButton('<img src="/assets/images/plus.png" alt="plus" width="24" height="24" />', "no_style_btn", () => addRow(container));
+                    buttonCol.appendChild(addButton);
+                }
+
+                if (rows.length > 1) {
+                    const deleteButton = createButton('<i class="bi bi-trash-fill text-white"></i>', 'no_style_btn', () => deleteRow(row, container));
+                    buttonCol.appendChild(deleteButton);
+                }
+            });
+        }
+
+        function createButton(icon, className, clickHandler) {
+            const button = document.createElement('button');
+            button.className = `${className}`;
+            button.innerHTML = `${icon}`;
+            button.onclick = clickHandler;
+            return button;
+        }
+
+        function addRow(container) {
+            const rows = container.querySelectorAll('.row');
+            const newRow = rows[0].cloneNode(true);
+
+            newRow.querySelectorAll('input').forEach(input => {
+                if (input.name !== 'weekdays') {
+                    input.value = '';
+                }
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                }
+            });
+
+            // Generate unique IDs for date inputs
+            const newStartDateId = generateUniqueId('startDate');
+            const newEndDateId = generateUniqueId('endDate');
+            const newStartTimeId = generateUniqueId('startTime');
+            const newEndTimeId = generateUniqueId('endTime');
+            newRow.querySelector('input[name="startDate"]').id = newStartDateId;
+            newRow.querySelector('input[name="endDate"]').id = newEndDateId;
+            newRow.querySelector('input[name="startTime"]').id = newStartTimeId;
+            newRow.querySelector('input[name="endTime"]').id = newEndTimeId;
+
+            updateCheckboxIds(newRow);
+            const buttonCol = newRow.querySelector('.button-col');
+            buttonCol.innerHTML = '';
+
+            container.appendChild(newRow);
+
+            [newStartDateId, newEndDateId].forEach(id => {
+                // Update Flatpickr initialization for the new inputs
+                flatpickr(`#${id}`, {
+                    dateFormat: "m-d-y",
+                    allowInput: true,
+                });
+            });
+
+            [newStartTimeId, newEndTimeId].forEach(id => {
+                flatpickr(`#${id}`, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "h:i K", // h:i for hour:min, K for AM/PM
+                    time_24hr: false, // Use 12-hour format
+                    minuteIncrement: 1,
+                });
+            });
+
+
+            updateButtons(container);
+
+        }
+
+        function deleteRow(row, container) {
+            row.remove();
+            updateButtons(container);
+        }
+
+        function updateCheckboxIds(row) {
+            const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                const newId = generateUniqueId('checkbox');
+                const label = row.querySelector(`label[for="${checkbox.id}"]`);
+                checkbox.id = newId;
+                if (label) {
+                    label.setAttribute('for', newId);
+                }
+            });
+        }
+
+        function initializeContainer(containerId) {
+            const container = document.getElementById(containerId);
+            const rows = container.querySelectorAll(".row");
+
+            // Ensure there's a column for buttons in each row
+            rows.forEach((row, index) => {
+                if (!row.querySelector(".button-col")) {
+                    const buttonCol = document.createElement("div");
+                    buttonCol.className = "col-md-1 button-col";
+                    row.appendChild(buttonCol);
+                }
+                // Update checkbox IDs for existing rows
+                updateCheckboxIds(row);
+            });
+
+            updateButtons(container);
+        }
+        initializeContainer("time-slot-container");
+        initializeContainer("weekly-slot-container");
+
+        async function fetchEvent(eventId) {
+            try {
+                const response = await fetch(`/event/uniqueId/${eventId}`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+                const data = await response.json();
+                if (data) {
+                    chatUrl = data.data.chatUrl;
+                    generateSlotsHTML(data.data.result);
+                    updateAddress(data.data.result[0]);
+                    updateEventName(data.data.result[0])
+                }
+            } catch (error) {
+                console.error("Error fetching event:", error);
+            }
+        }
+
+        function updateEventName(data) {
+            const eventTitleInput = document.getElementById("title");
+            eventTitleInput.value = data.title;
+        }
+
+        function generateSlotsHTML(data) {
+            const timeSlotsContainer = document.getElementById("time-slot-container");
+            const weeklySlotContainer = document.getElementById("weekly-slot-container");
+
+            timeSlotsContainer.style.display = "block";
+            weeklySlotContainer.style.display = "block";
+
+
+            let dateSlotAppended = false;
+            let weeklySlotAppended = false;
+            const timeSlotsContainerRow = timeSlotsContainer.querySelectorAll(".row");
+            const weeklySlotsContainerRow = weeklySlotContainer.querySelectorAll(".row");
+
+            let firstRow = timeSlotsContainerRow[0];
+            let firstRowOfWeekly = weeklySlotsContainerRow[0];
+
+            firstRow.querySelectorAll('input').forEach(input => {
+                if (input.name !== 'weekdays') {
+                    input.value = '';
+                }
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                }
+            });
+
+            firstRowOfWeekly.querySelectorAll('input').forEach(input => {
+                if (input.name !== 'weekdays') {
+                    input.value = '';
+                }
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                }
+            });
+
+            // remove all rows except the first row
+            for (let i = 1; i < timeSlotsContainerRow.length; i++) {
+                timeSlotsContainerRow[i].remove();
+            }
+
+            for (let i = 1; i < weeklySlotsContainerRow.length; i++) {
+                weeklySlotsContainerRow[i].remove();
+            }
+
+            for (const slot of data) {
+
+                if (slot.type == 1) {
+                    if (!dateSlotAppended) {
+                        let firstRow = timeSlotsContainerRow[0];
+
+                        const { startDate, endDate, startTime, endTime } = convertDates({
+                            startDate: slot.startDate,
+                            endDate: slot.endDate,
+                            startTime: slot.startTime,
+                            endTime: slot.endTime
+                        })
+
+                        const startDateInput = firstRow.querySelector('input[name="startDate"]');
+                        startDateInput.value = formatDateWithFlatpickr(startDate, 'Y-m-d', 'm-d-y');
+                        if (startDateInput?.value?.trim() !== "") {
+                            startDateInput.classList.add("filled");
+                        } else {
+                            startDateInput?.classList?.remove("filled");
+                        }
+                        firstRow.querySelector('input[name="endDate"]').value = formatDateWithFlatpickr(endDate, 'Y-m-d', 'm-d-y');
+                        firstRow.querySelector('input[name="startTime"]').value = startTime;
+                        firstRow.querySelector('input[name="endTime"]').value = endTime;
+                        firstRow.querySelector('input[name="slot_name"]').value = slot.slot_name;
+                        dateSlotAppended = true;
+
+                    }
+                    else {
+                        let newRow = timeSlotsContainerRow[0].cloneNode(true);
+
+
+                        newRow.querySelector('input[name="startDate"]').value = formatDateWithFlatpickr(slot.startDate, 'Y-m-d', 'm-d-y');
+                        newRow.querySelector('input[name="endDate"]').value = formatDateWithFlatpickr(slot.endDate, 'Y-m-d', 'm-d-y');
+                        newRow.querySelector('input[name="startTime"]').value = slot.startTime;
+                        newRow.querySelector('input[name="endTime"]').value = slot.endTime;
+                        newRow.querySelector('input[name="slot_name"]').value = slot.slot_name;
+
+                        updateIdsOfTimeSlots(newRow, timeSlotsContainer);
+                    }
+                } else {
+
+                    if (!weeklySlotAppended) {
+
+                        let firstRow = weeklySlotsContainerRow[0];
+
+                        const { startDate, endDate, startTime, endTime } = convertDates({
+                            startDate: slot.startDate,
+                            endDate: slot.endDate,
+                            startTime: slot.startTime,
+                            endTime: slot.endTime
+                        })
+
+                        firstRow.querySelector('input[name="startDate"]').value = formatDateWithFlatpickr(startDate, 'Y-m-d', 'm-d-y');
+                        firstRow.querySelector('input[name="endDate"]').value = formatDateWithFlatpickr(endDate, 'Y-m-d', 'm-d-y');
+                        firstRow.querySelector('input[name="startTime"]').value = startTime;
+                        firstRow.querySelector('input[name="endTime"]').value = endTime;
+                        firstRow.querySelector('input[name="slot_name"]').value = slot.slot_name;
+
+                        let weekdays = firstRow.querySelectorAll('.week-days-input');
+                        for (let i = 0; i < weekdays.length; i++) {
+                            weekdays[i].checked = slot.weekdays.includes(weekdays[i].value);
+                        }
+
+                        weeklySlotAppended = true;
+                    } else {
+
+                        let newRow = weeklySlotsContainerRow[0].cloneNode(true);
+                        newRow.querySelector('input[name="startDate"]').value = formatDateWithFlatpickr(slot.startDate, 'Y-m-d', 'm-d-y');
+                        newRow.querySelector('input[name="endDate"]').value = formatDateWithFlatpickr(slot.endDate, 'Y-m-d', 'm-d-y');
+                        newRow.querySelector('input[name="startTime"]').value = slot.startTime;
+                        newRow.querySelector('input[name="endTime"]').value = slot.endTime;
+                        newRow.querySelector('input[name="slot_name"]').value = slot.slot_name;
+                        let weekdays = newRow.querySelectorAll('.week-days-input');
+                        for (let i = 0; i < weekdays.length; i++) {
+                            weekdays[i].checked = slot.weekdays.includes(weekdays[i].value);
+                        }
+
+                        updateIdsOfTimeSlots(newRow, weeklySlotContainer);
+                    }
+
+                }
+
+            }
+
+        }
+
+        function updateAddress(eventData) {
+            if (eventData.address) {
+                const { room, place, address_line1, address_line2, city, state, country, postal_code } = eventData.address;
+                const fullAddress = [room, place, address_line1, address_line2, city, state, country, postal_code]
+                    .filter(Boolean)
+                    .join(", ");
+
+                const locationInput = document.getElementById("location");
+                window.selectedAddress = eventData.address;
+
+                if (fullAddress.trim() !== "") {
+                    locationInput.value = fullAddress;
+                    locationInput?.classList?.add("filled");
+                } else {
+                    locationInput?.classList?.remove("filled");
+                }
+            }
+        }
+
+        function convertDates(inputData) {
+            // Parse the input date strings to Date objects
+            const startDateObj = inputData.startDate ? new Date(inputData.startDate) : null;
+            const endDateObj = inputData.endDate ? new Date(inputData.endDate) : null;
+
+            // Extract dates in the desired format (YYYY-MM-DD)
+            const startDate = startDateObj ? startDateObj.toISOString().split('T')[0] : null;
+            const endDate = endDateObj ? endDateObj.toISOString().split('T')[0] : null;
+
+            // Parse time strings and format them to AM/PM format
+            const parseTime = (timeStr) => {
+                const [hours, minutes] = timeStr.split(':');
+                let hour = parseInt(hours);
+                const isPM = hour >= 12;
+                hour = hour % 12 || 12; // Convert 0 to 12 for midnight and 12-hour format
+                const period = isPM ? 'PM' : 'AM';
+                return `${hour}:${minutes} ${period}`;
+            };
+
+            const startTime = inputData.startTime ? parseTime(inputData.startTime) : null;
+            const endTime = inputData.endTime ? parseTime(inputData.endTime) : null;
+
+            // Create output object
+            return {
+                startDate: startDate,
+                endDate: endDate,
+                startTime: startTime,
+                endTime: endTime,
+            };
+        }
+
+        function updateIdsOfTimeSlots(newRow, container) {
+
+            const newStartDateId = generateUniqueId("startDate");
+            const newEndDateId = generateUniqueId("endDate");
+            const newStartTimeId = generateUniqueId("startTime");
+            const newEndTimeId = generateUniqueId("endTime");
+            newRow.querySelector('input[name="startDate"]').id = newStartDateId;
+            newRow.querySelector('input[name="endDate"]').id = newEndDateId;
+            newRow.querySelector('input[name="startTime"]').id = newStartTimeId;
+            newRow.querySelector('input[name="endTime"]').id = newEndTimeId;
+
+
+            updateCheckboxIds(newRow);
+            const buttonCol = newRow.querySelector(".button-col");
+            buttonCol.innerHTML = "";
+
+            container.appendChild(newRow);
+
+            [newStartDateId, newEndDateId].forEach((id) => {
+                // Update Flatpickr initialization for the new inputs
+                flatpickr(`#${id}`, {
+                    dateFormat: "m-d-y",
+                    allowInput: true,
+                });
+            });
+
+            [newStartTimeId, newEndTimeId].forEach((id) => {
+                flatpickr(`#${id}`, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "h:i K", // h:i for hour:min, K for AM/PM
+                    time_24hr: false, // Use 12-hour format
+                    minuteIncrement: 1,
+                });
+            });
+
+            updateButtons(container);
+        }
+
+        function hideDefaultTimeSlots() {
+            const timeSlotsContainer = document.getElementById("time-slot-container");
+            if (timeSlotsContainer) {
+                timeSlotsContainer.style.display = "none";
+            }
+
+            const weeklySlotsContainer = document.getElementById("weekly-slot-container");
+            if (weeklySlotsContainer) {
+                weeklySlotsContainer.style.display = "none";
+            }
+        }
+
+        function generateUniqueId(prefix) {
+            return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        function initializeReviewScreenAction() {
+
+            function formatDateToLocalDateString(dateString) {
+                const options = { month: "numeric", day: "numeric", year: "2-digit" };
+                return new Date(dateString).toLocaleDateString("en-US", options);
+            }
+
+            // Function to format time
+            function formatTime(timeString) {
+                if (!timeString) return "-";
+                return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
+                    hour: "numeric",
+                    minute: "numeric",
+                    hour12: true,
+                });
+            }
+
+            // Function to get day of week
+            function getDayOfWeek(dateString) {
+                if (!dateString) return "-";
+
+                return new Date(dateString)
+                    .toLocaleDateString("en-US", { weekday: "long" })
+                    .toUpperCase();
+            }
+
+            // Function to generate HTML for a single time slot
+            function generateTimeSlotHTML(slot) {
+                if (slot.type === 1) {
+                    return `
+                        <table style="background-color: black; color: white; border-collapse: collapse;">
+                            <th>
+                                <tr colspan="4">
+                                    <td  style="padding: 5px;">${slot.slotName}</td>
+                                </tr>
+                            </th>
+                            <tr>
+                                <td style="padding: 5px;">
+                                    <span class="day-badge badge w-100">${getDayOfWeek(slot.startDate)}</span>
+                                </td>
+                                <td style="padding: 5px;">FROM</td>
+                                <td style="padding: 5px;">
+                                     <span class="day-badge badge w-100">
+                                        ${formatTime(slot.startTime)}
+                                    </span>
+                                </td>
+                                <td style="padding: 5px;">
+                                     <span class="day-badge badge w-100">
+                                        ${formatTime(slot.endTime)}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px;">
+                                    <span class="day-badge badge w-100">${getDayOfWeek(slot.startDate)}</span>
+                                </td>
+                                <td style="padding: 5px;">Starts</td>
+                                <td style="padding: 5px;" >
+                                    <span class="day-badge badge w-100">
+                                        ${formatDateToLocalDateString(slot.startDate)}
+                                    </span>
+                                </td>
+                                <td style="padding: 5px;">
+                                     <span class="day-badge badge w-100">
+                                        ${formatDateToLocalDateString(slot.endDate)}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                `;
+                } else {
+                    return `
+                    <table style="background-color: black; color: white; border-collapse: collapse;">
+                         <th>
+                            <tr colspan="4">
+                                <td  style="padding: 5px;">${slot.slotName}</td>
+                            </tr>
+                        </th>
+                        <tr>
+                            <td style="padding: 5px;" >
+                                <span class="day-badge badge w-100">
+                                    ${formatDateToLocalDateString(slot.startDate)}
+                                </span>
+                                </td>
+                            <td style="padding: 5px;">TO</td>
+                            <td style="padding: 5px;">
+                                <span class="day-badge badge w-100">
+                                    ${formatDateToLocalDateString(slot.endDate)}
+                                </span>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px;">
+                                     <span class="day-badge badge w-100">
+                                        ${formatTime(slot.startTime)}
+                                    </span>
+                            </td>
+                            <td style="padding: 5px;">TO</td>
+                            <td style="padding: 5px;">
+                                    <span class="day-badge badge w-100">
+                                    ${formatTime(slot.endTime)}
+                                </span>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+                
+                `;
+                }
+            }
+
+            // Function to generate HTML for all time slots
+            function generateAllTimeSlotsHTML(slots) {
+                return slots.map(generateTimeSlotHTML).join("");
+            }
+        }
+
+    });
+</script>

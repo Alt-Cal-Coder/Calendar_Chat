@@ -1,0 +1,125 @@
+<div class="mb-3" id="weekly-slot-container">
+    <div class="row mb-3 g-2 align-items-center">
+        <div class="col-12 col-sm-12 col-md-2 col-lg-2 d-md-block d-flex align-items-center gap-2">
+            <section class="w-100">
+                {{> timePicker id="startTime" }}
+            </section>
+            <section class="mt-md-2 mt-0 w-100">
+                {{> timePicker id="endTime" }}
+            </section>
+        </div>
+        <div class="col-12 col-sm-5 col-md-3 col-lg-3 week-days-col">
+            <div class="d-flex flex-wrap gap-1 justify-content-center justify-content-sm-start week-days-container">
+                {{#each weeklyArray}}
+                <div>
+                    <input type="checkbox" class="btn-check week-days-input styled_input" name="weekdays" id="{{this}}"
+                        value="{{this}}" autocomplete="off">
+                    <label class="btn btn-sm week-days" for="{{this}}">{{this}}</label>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        <div class="d-none d-md-block col-md-1"></div>
+        <div class="col-12 col-sm-11 col-md-2 col-lg-2 mt-2 mt-md-0 d-md-block d-flex align-items-center gap-2">
+            <section class="w-100">
+                <input type="text" name="startDate" id="startDate" class="form-control date-input styled_input"
+                    placeholder="00/00/00" data-input>
+            </section>
+            <section class="mt-md-2 mt-0 w-100">
+                <input type="text" name="endDate" id="endDate" class="form-control date-input styled_input" placeholder="00/00/00"
+                    data-input>
+            </section>
+        </div>
+        <div class="col-12 col-sm-7 col-md-3 col-lg-3">
+            <input type="text" name="slot_name" id="slot_name" class="form-control w-100 styled_input" placeholder="TimeSlot Name" >
+        </div>
+        <div class="col-12 col-sm-1 col-md-1 button-col mt-2 mt-md-0 d-flex align-items-center justify-content-end">
+            <!-- Add/Delete buttons will be inserted here by script -->
+        </div>
+    </div>
+</div>
+
+<style>
+    .week-days {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+        color: #212529;
+        background: white;
+        border: 1px solid #ced4da;
+        border-radius: 0.3rem;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .week-days-input:checked+.week-days {
+        border: 1px solid #e1bb53;
+        background-color: #323030;
+        color: white;
+        box-shadow: none !important;
+        font-weight: 500;
+    }
+
+    #weekly-slot-container .time-picker {
+        height: 2rem;
+    }
+
+    #weekly-slot-container .date-input {
+        height: 2rem;
+    }
+
+    @media (max-width: 575.98px) {
+        .week-days-container {
+            justify-content: center !important;
+        }
+    }
+
+    @media (max-width: 840px) and (min-width: 765px) {
+        .week-days {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.2rem;
+        }
+    }
+
+
+    #weekly-slot-container::-webkit-scrollbar {
+        width: 0.2rem;
+        height: 0.5rem;
+    }
+
+    #weekly-slot-container::-webkit-scrollbar-thumb {
+        background-color: #e6c95d;
+        border-radius: 0.5rem;
+    }
+
+    #weekly-slot-container::-webkit-scrollbar-track {
+        background-color: #080808;
+        border-radius: 0.5rem;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr("#startDate", {
+            dateFormat: "m-d-Y", // Format for date input
+            allowInput: true, // Allow manual input
+            // Any other options you want
+        });
+
+        flatpickr("#endDate", {
+            dateFormat: "m-d-Y", // Format for date input
+            allowInput: true, // Allow manual input
+            // Any other options you want
+        });
+
+        const inputs = document.querySelectorAll(".styled_input");
+
+        inputs.forEach((input) => {
+            input.addEventListener("input", function () {
+                if (this.value.trim() !== "") {
+                    this.classList.add("filled");
+                } else {
+                    this.classList.remove("filled");
+                }
+            });
+        });
+    });
+</script>
